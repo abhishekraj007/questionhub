@@ -11,7 +11,6 @@ interface QuestionDetailProps {
 const QuestionDetail = ({ selected }: QuestionDetailProps) => {
   const theme = useTheme();
   const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-  console.log(theme);
 
   if (selected) {
     return (

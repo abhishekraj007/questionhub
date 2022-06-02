@@ -1,14 +1,6 @@
 import React, { memo, useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  FlatList,
-  Platform,
-  Text,
-  useWindowDimensions,
-} from "react-native";
-import { Question, SidebarItem } from "../data-contracts";
+import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
+import { Question } from "../data-contracts";
 import QuestionItem from "./QuestionItem";
 import QuestionItemWeb from "./QuestionItemWeb";
 import Loader from "./Loader";
@@ -26,9 +18,7 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
   const [data, setData] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
   const [isLoading, setIsLoading] = useState(false);
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
-
-  console.log(selectedMenu);
+  const { height: screenHeight } = useWindowDimensions();
 
   useEffect(() => {
     (async () => {
@@ -44,10 +34,6 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
       }
     })();
   }, []);
-
-  if (isLoading) {
-    <Loader />;
-  }
 
   const renderQuestion = ({ item, index }) => {
     if (Platform.OS === "web") {
@@ -66,41 +52,46 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
   const renderList = () => {
     if (Platform.OS === "web") {
       return (
-        <View style={styles.gridTwo}>
-          <View
-            style={{
-              width: `40%`,
-              height: `${screenHeight - 48}px`,
-              overflow: "scroll",
-            }}
-          >
-            <List
-              data={data}
-              ItemSeparatorComponent={Divider}
-              renderItem={renderQuestion}
-            />
+        <>
+          {isLoading && <Loader />}
+          <View style={styles.panel}>
+            <View
+              style={[
+                styles.panelLeft,
+                {
+                  height: `${screenHeight - 90}px`,
+                },
+              ]}
+            >
+              <List
+                data={data}
+                ItemSeparatorComponent={Divider}
+                renderItem={renderQuestion}
+              />
+            </View>
+            <View
+              style={[
+                styles.panelRight,
+                {
+                  height: `${screenHeight - 90}px`,
+                },
+              ]}
+            >
+              <QuestionDetail selected={selectedQuestion} />
+            </View>
           </View>
-          <View
-            style={{
-              width: `60%`,
-              height: `${screenHeight - 48}px`,
-              overflow: "scroll",
-              borderColor: "rgba(0,0,0,0.1)",
-              padding: 16,
-              borderLeftWidth: 1,
-            }}
-          >
-            <QuestionDetail selected={selectedQuestion} />
-          </View>
-        </View>
+        </>
       );
     }
     return (
-      <List
-        data={data}
-        ItemSeparatorComponent={Divider}
-        renderItem={renderQuestion}
-      />
+      <>
+        {isLoading && <Loader />}
+        <List
+          data={data}
+          ItemSeparatorComponent={Divider}
+          renderItem={renderQuestion}
+        />
+      </>
     );
   };
 
@@ -108,15 +99,20 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
 });
 
 const styles = StyleSheet.create({
-  gridTwo: {
+  panel: {
     display: "flex",
     flexDirection: "row",
   },
-  webPanel: {},
   panelLeft: {
-    width: "320px",
+    width: `40%`,
+    overflow: "scroll",
   },
   panelRight: {
-    backgroundColor: "red",
+    width: `60%`,
+    overflow: "scroll",
+    borderColor: "rgba(0,0,0,0.1)",
+    padding: 16,
+    paddingRight: 32,
+    borderLeftWidth: 1,
   },
 });

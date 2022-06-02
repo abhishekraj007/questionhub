@@ -3,48 +3,33 @@ import * as eva from "@eva-design/eva";
 import {
   ApplicationProvider,
   Divider,
-  Icon,
   IndexPath,
   Layout,
-  TopNavigation,
-  TopNavigationAction,
-  Text,
   IconRegistry,
 } from "@ui-kitten/components";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Sidebar } from "./components/Sidebar";
 import { QuestionContainer } from "./components/QuestionContainer";
 import { useState } from "react";
-import { SidebarItem } from "./data-contracts";
+import { AppTheme, SidebarItem } from "./data-contracts";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
-
-export enum AppTheme {
-  LIGHT = "LIGHT",
-  DARK = "DARK",
-}
+import Header from "./components/Header";
+import { useEffect } from "react";
 
 export default () => {
   const { width: screenWidth } = useWindowDimensions();
-  const [theme, setTheme] = useState<AppTheme>(AppTheme.LIGHT);
+  const userTheme = localStorage.getItem("theme");
+  const [theme, setTheme] = useState<AppTheme>(
+    (userTheme as AppTheme) ?? AppTheme.LIGHT
+  );
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   const [selectedMenu, setSelectedMenu] = useState(
     new IndexPath(SidebarItem.JAVASCRIPT)
   );
-
-  const ToggleIcon = (props) => (
-    <Icon {...props} name={theme === AppTheme.LIGHT ? "moon" : "sun"} />
-  );
-
-  const renderToggleTheme = () => {
-    return (
-      <TopNavigationAction
-        onPress={() => {
-          setTheme(theme === AppTheme.LIGHT ? AppTheme.DARK : AppTheme.LIGHT);
-        }}
-        icon={ToggleIcon}
-      />
-    );
-  };
 
   return (
     <>
@@ -53,10 +38,7 @@ export default () => {
         {...eva}
         theme={theme === AppTheme.LIGHT ? eva.light : eva.dark}
       >
-        <TopNavigation
-          title={"Interview Questions"}
-          accessoryRight={renderToggleTheme}
-        />
+        <Header theme={theme} setTheme={setTheme} />
         <Divider />
         <Layout style={styles.container}>
           <View

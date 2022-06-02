@@ -1,18 +1,29 @@
+import { Spinner } from "@ui-kitten/components";
 import React from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, useWindowDimensions, View } from "react-native";
 
 export default function Loader() {
+  const { height: screenHeight } = useWindowDimensions();
   return (
-    <>
-      <Text>Loading...</Text>
-    </>
+    <View
+      style={[
+        styles.loaderContainer,
+        {
+          height: `${screenHeight - 90}px`,
+        },
+      ]}
+    >
+      <Spinner size="giant" />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  skeletonContainer: {
-    marginLeft: 16,
-    marginRight: 16,
-    marginTop: 16,
+  loaderContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingRight: 200,
+    paddingBottom: 100,
   },
 });
