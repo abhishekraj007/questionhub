@@ -1,18 +1,16 @@
 import React, { memo, useEffect, useState } from "react";
 import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
-import { Question } from "../data-contracts";
 import QuestionItem from "./QuestionItem";
 import QuestionItemWeb from "./QuestionItemWeb";
 import Loader from "./Loader";
 import { Divider, IndexPath, List } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
+import { Question } from "../data-contracts";
+import { getJSQuestions } from "../apis";
 
 interface Props {
   selectedMenu: IndexPath;
 }
-
-const JS_URL =
-  "https://raw.githubusercontent.com/abhishekraj007/md2json/main/js-v2.json";
 
 export const QuestionContainer = memo(({ selectedMenu }: Props) => {
   const [data, setData] = useState<Question[]>([]);
@@ -24,8 +22,7 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
     (async () => {
       try {
         setIsLoading(true);
-        const res = await fetch(JS_URL);
-        const data = await res.json();
+        const data = await getJSQuestions();
         setData(data);
       } catch (error) {
         console.log(error);

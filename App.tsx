@@ -8,12 +8,12 @@ import {
   IconRegistry,
 } from "@ui-kitten/components";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
-import { Sidebar } from "./components/Sidebar";
-import { QuestionContainer } from "./components/QuestionContainer";
+import { Sidebar } from "./src/components/Sidebar";
+import { QuestionContainer } from "./src/components/QuestionContainer";
 import { useState } from "react";
-import { AppTheme, SidebarItem } from "./data-contracts";
+import { AppTheme, SidebarItem } from "./src/data-contracts";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
-import Header from "./components/Header";
+import Header from "./src/components/Header";
 import { useEffect } from "react";
 
 export default () => {
