@@ -2,8 +2,8 @@
   "background_color": "#ffffff",
   "display": "standalone",
   "lang": "en",
-  "name": "ui-kitten",
-  "short_name": "ui-kitten",
+  "name": "Qhub",
+  "short_name": "Qhub",
   "start_url": "/?utm_source=web_app_manifest",
   "orientation": "portrait",
   "icons": [

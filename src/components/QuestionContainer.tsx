@@ -1,29 +1,47 @@
-import React, { memo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
 import QuestionItem from "./QuestionItem";
 import QuestionItemWeb from "./QuestionItemWeb";
 import Loader from "./Loader";
-import { Divider, IndexPath, List } from "@ui-kitten/components";
+import { Divider, List } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
 import { Question } from "../data-contracts";
 import { getJSQuestions } from "../apis";
+import { observer } from "mobx-react-lite";
+import { IStore } from "../stores";
 
 interface Props {
-  selectedMenu: IndexPath;
+  store: IStore;
 }
 
-export const QuestionContainer = memo(({ selectedMenu }: Props) => {
-  const [data, setData] = useState<Question[]>([]);
+export const QuestionContainer = observer(({ store }: Props) => {
+  const [rawData, setRawData] = useState<Question[]>([]);
+  const [favoritesData, setFavorites] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
   const [isLoading, setIsLoading] = useState(false);
   const { height: screenHeight } = useWindowDimensions();
+
+  const {
+    menuStore: { selectedMenu },
+  } = store;
+
+  const isFavMenuSelected =
+    selectedMenu.row === 0 && selectedMenu.section === 0;
+
+  const listData = isFavMenuSelected ? favoritesData : rawData;
+
+  const onFavPress = (item: Question) => {
+    const nonFavData = rawData.filter((question) => question.id !== item.id);
+    setRawData([item, ...nonFavData]);
+    setFavorites([...favoritesData, item]);
+  };
 
   useEffect(() => {
     (async () => {
       try {
         setIsLoading(true);
         const data = await getJSQuestions();
-        setData(data);
+        setRawData(data);
       } catch (error) {
         console.log(error);
       } finally {
@@ -40,6 +58,7 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
           item={item}
           index={index}
           setSlected={setSelectedQuestion}
+          onFavPress={onFavPress}
         />
       );
     }
@@ -61,7 +80,7 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
               ]}
             >
               <List
-                data={data}
+                data={listData}
                 ItemSeparatorComponent={Divider}
                 renderItem={renderQuestion}
               />
@@ -84,7 +103,7 @@ export const QuestionContainer = memo(({ selectedMenu }: Props) => {
       <>
         {isLoading && <Loader />}
         <List
-          data={data}
+          data={listData}
           ItemSeparatorComponent={Divider}
           renderItem={renderQuestion}
         />

@@ -6,14 +6,24 @@ interface QuestionItemWebProps {
   item: Question;
   index: number;
   setSlected: (item: Question) => void;
+  onFavPress: (item: Question) => void;
 }
 
-const QuestionItemWeb = ({ item, setSlected, index }: QuestionItemWebProps) => {
+const QuestionItemWeb = ({
+  item,
+  setSlected,
+  index,
+  onFavPress,
+}: QuestionItemWebProps) => {
   const onItemClick = () => {
     setSlected(item);
   };
 
   const toggleFav = () => {
+    onFavPress({
+      ...item,
+      bookmarked: !item.bookmarked,
+    });
     console.log(item);
   };
 

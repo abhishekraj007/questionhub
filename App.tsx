@@ -3,7 +3,6 @@ import * as eva from "@eva-design/eva";
 import {
   ApplicationProvider,
   Divider,
-  IndexPath,
   Layout,
   IconRegistry,
 } from "@ui-kitten/components";
@@ -15,6 +14,7 @@ import { AppTheme, SidebarItem } from "./src/data-contracts";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import Header from "./src/components/Header";
 import { useEffect } from "react";
+import { Store } from "./src/stores";
 
 export default () => {
   const { width: screenWidth } = useWindowDimensions();
@@ -23,13 +23,11 @@ export default () => {
     (userTheme as AppTheme) ?? AppTheme.LIGHT
   );
 
+  const store = new Store();
+
   useEffect(() => {
     localStorage.setItem("theme", theme);
   }, [theme]);
-
-  const [selectedMenu, setSelectedMenu] = useState(
-    new IndexPath(SidebarItem.JAVASCRIPT)
-  );
 
   return (
     <>
@@ -46,17 +44,14 @@ export default () => {
               width: "280px",
             }}
           >
-            <Sidebar
-              selectedMenu={selectedMenu}
-              setSelectedMenu={setSelectedMenu}
-            />
+            <Sidebar store={store} />
           </View>
           <View
             style={{
               width: `${screenWidth - 280}px`,
             }}
           >
-            <QuestionContainer selectedMenu={selectedMenu} />
+            <QuestionContainer store={store} />
           </View>
         </Layout>
       </ApplicationProvider>
