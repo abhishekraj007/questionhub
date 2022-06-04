@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Icon,
+  Input,
   TopNavigation,
   TopNavigationAction,
 } from "@ui-kitten/components";
 import { AppTheme } from "../data-contracts";
+import { useWindowDimensions, View } from "react-native";
 
 interface Props {
   theme: AppTheme;
@@ -12,18 +14,48 @@ interface Props {
 }
 
 function Header({ theme, setTheme }: Props) {
+  const [value, setValue] = useState("");
+  const { width } = useWindowDimensions();
+  console.log(width);
+
   const ToggleIcon = (props) => (
     <Icon {...props} name={theme === AppTheme.LIGHT ? "moon" : "sun"} />
   );
 
-  const renderToggleTheme = () => {
-    return (
-      <TopNavigationAction
-        onPress={() => {
-          setTheme(theme === AppTheme.LIGHT ? AppTheme.DARK : AppTheme.LIGHT);
-        }}
-        icon={ToggleIcon}
+  const SearchBar = () => (
+    <View
+      style={{
+        width: width - 440,
+        maxWidth: 600,
+        marginRight: width / 8,
+      }}
+    >
+      <Input
+        placeholder="Search"
+        value={value}
+        onChangeText={(nextValue) => setValue(nextValue)}
       />
+    </View>
+  );
+
+  const renderRightNav = () => {
+    return (
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+          // width: "80%",
+        }}
+      >
+        {/* <SearchBar /> */}
+        <TopNavigationAction
+          onPress={() => {
+            setTheme(theme === AppTheme.LIGHT ? AppTheme.DARK : AppTheme.LIGHT);
+          }}
+          icon={ToggleIcon}
+        />
+      </View>
     );
   };
 
@@ -34,8 +66,9 @@ function Header({ theme, setTheme }: Props) {
         paddingRight: 16,
       }}
       title={"Interview Questions"}
-      accessoryRight={renderToggleTheme}
-    />
+      // accessoryLeft={SearchBar}
+      accessoryRight={renderRightNav}
+    ></TopNavigation>
   );
 }
 

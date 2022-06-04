@@ -10,11 +10,13 @@ import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Sidebar } from "./src/components/Sidebar";
 import { QuestionContainer } from "./src/components/QuestionContainer";
 import { useState } from "react";
-import { AppTheme, SidebarItem } from "./src/data-contracts";
+import { AppTheme } from "./src/data-contracts";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import Header from "./src/components/Header";
 import { useEffect } from "react";
 import { Store } from "./src/stores";
+
+const store = new Store();
 
 export default () => {
   const { width: screenWidth } = useWindowDimensions();
@@ -23,7 +25,7 @@ export default () => {
     (userTheme as AppTheme) ?? AppTheme.LIGHT
   );
 
-  const store = new Store();
+  console.log(store);
 
   useEffect(() => {
     localStorage.setItem("theme", theme);

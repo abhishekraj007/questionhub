@@ -24,10 +24,11 @@ const QuestionItemWeb = ({
       ...item,
       bookmarked: !item.bookmarked,
     });
-    console.log(item);
   };
 
-  const StarIcon = (props) => <Icon {...props} name="star" />;
+  const StarIcon = (props) => (
+    <Icon {...props} name={item?.bookmarked ? "star" : "star-outline"} />
+  );
 
   const favButton = () => {
     return (

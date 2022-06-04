@@ -3,10 +3,9 @@ import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
 import QuestionItem from "./QuestionItem";
 import QuestionItemWeb from "./QuestionItemWeb";
 import Loader from "./Loader";
-import { Divider, List } from "@ui-kitten/components";
+import { Divider, Input, List } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
-import { Question } from "../data-contracts";
-import { getJSQuestions } from "../apis";
+import { Question, SidebarItem } from "../data-contracts";
 import { observer } from "mobx-react-lite";
 import { IStore } from "../stores";
 
@@ -15,38 +14,37 @@ interface Props {
 }
 
 export const QuestionContainer = observer(({ store }: Props) => {
-  const [rawData, setRawData] = useState<Question[]>([]);
-  const [favoritesData, setFavorites] = useState<Question[]>([]);
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
-  const [isLoading, setIsLoading] = useState(false);
   const { height: screenHeight } = useWindowDimensions();
+
+  const [value, setValue] = useState("");
+
+  console.log("render q container");
 
   const {
     menuStore: { selectedMenu },
+    questionStore: {
+      isLoading,
+      javasctipt,
+      javasctiptFavorites,
+      getQuestions,
+      toggleFavorite,
+    },
   } = store;
 
   const isFavMenuSelected =
-    selectedMenu.row === 0 && selectedMenu.section === 0;
+    selectedMenu.row === 1 && selectedMenu.section === 0;
 
-  const listData = isFavMenuSelected ? favoritesData : rawData;
+  const listData = isFavMenuSelected ? javasctiptFavorites : javasctipt;
 
   const onFavPress = (item: Question) => {
-    const nonFavData = rawData.filter((question) => question.id !== item.id);
-    setRawData([item, ...nonFavData]);
-    setFavorites([...favoritesData, item]);
+    toggleFavorite(item);
   };
 
   useEffect(() => {
     (async () => {
-      try {
-        setIsLoading(true);
-        const data = await getJSQuestions();
-        setRawData(data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
+      getQuestions(SidebarItem.JAVASCRIPT);
+      console.log(javasctipt);
     })();
   }, []);
 
@@ -79,6 +77,11 @@ export const QuestionContainer = observer(({ store }: Props) => {
                 },
               ]}
             >
+              {/* <Input
+                placeholder="Search"
+                value={value}
+                onChangeText={(nextValue) => setValue(nextValue)}
+              /> */}
               <List
                 data={listData}
                 ItemSeparatorComponent={Divider}
@@ -126,9 +129,9 @@ const styles = StyleSheet.create({
   panelRight: {
     width: `60%`,
     overflow: "scroll",
-    borderColor: "rgba(0,0,0,0.1)",
+    // borderColor: "rgba(0,0,0,0.1)",
     padding: 16,
     paddingRight: 32,
-    borderLeftWidth: 1,
+    // borderLeftWidth: 1,
   },
 });

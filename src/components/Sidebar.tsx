@@ -1,7 +1,7 @@
 import {
-  Drawer,
-  DrawerGroup,
-  DrawerItem,
+  Menu,
+  MenuGroup,
+  MenuItem,
   Icon,
   useTheme,
 } from "@ui-kitten/components";
@@ -15,35 +15,36 @@ interface Props {
 export const Sidebar = observer(({ store: { menuStore } }: Props) => {
   const theme = useTheme();
 
-  console.log(menuStore);
-
-  // const [selectedMenu, setSelectedMenu] = useMenuContext();
-
-  const starIcon = (props) => (
+  const StarIcon = (props) => (
     <Icon
       {...props}
-      style={{ width: 12, height: 12, tintColor: theme["color-danger-500"] }}
-      name="star"
+      style={{ width: 16, height: 16, tintColor: theme["color-danger-500"] }}
+      name="star-outline"
+    />
+  );
+  const BookOpen = (props) => (
+    <Icon
+      {...props}
+      style={{ width: 16, height: 16 }}
+      name="book-open-outline"
     />
   );
 
   return (
-    <Drawer
+    <Menu
       selectedIndex={menuStore.selectedMenu}
       onSelect={(index) => {
-        console.log(index);
         menuStore.setSelectedMenu(index);
       }}
     >
-      <DrawerGroup title="Javascript">
-        <DrawerItem title="Favorites" accessoryLeft={starIcon} />
-      </DrawerGroup>
-      <DrawerItem title="React" />
-      <DrawerItem title="HTML"></DrawerItem>
-      <DrawerItem title="CSS"></DrawerItem>
-      <DrawerItem title="Accessibility"></DrawerItem>
-    </Drawer>
+      <MenuGroup title="Javascript">
+        <MenuItem title="All" accessoryLeft={BookOpen} />
+        <MenuItem title="Favorites" accessoryLeft={StarIcon} />
+      </MenuGroup>
+      <MenuItem title="React" />
+      <MenuItem title="HTML"></MenuItem>
+      <MenuItem title="CSS"></MenuItem>
+      <MenuItem title="Accessibility"></MenuItem>
+    </Menu>
   );
 });
-
-// export const Sidebar = Observer()

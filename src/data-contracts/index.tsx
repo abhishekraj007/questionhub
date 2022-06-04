@@ -7,8 +7,10 @@ export interface Question {
 }
 
 export enum SidebarItem {
-  JAVASCRIPT = 0,
-  REACT = 1,
+  JAVASCRIPT = "JAVASCRIPT",
+  JAVASCRIPT_FAVORITE = "JAVASCRIPT_FAVORITE",
+  REACT = "REACT",
+  REACT_FAVORITE = "REACT_FAVORITE",
 }
 
 export enum AppTheme {
