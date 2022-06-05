@@ -4,6 +4,7 @@ import { Button, Icon, ListItem } from "@ui-kitten/components";
 
 interface QuestionItemWebProps {
   item: Question;
+  selectedItem: Question;
   index: number;
   setSlected: (item: Question) => void;
   onFavPress: (item: Question) => void;
@@ -14,6 +15,7 @@ const QuestionItemWeb = ({
   setSlected,
   index,
   onFavPress,
+  selectedItem,
 }: QuestionItemWebProps) => {
   const onItemClick = () => {
     setSlected(item);
@@ -47,6 +49,10 @@ const QuestionItemWeb = ({
       title={`${index + 1}. ${item?.title}`}
       onPress={onItemClick}
       accessoryRight={favButton}
+      style={{
+        backgroundColor:
+          item?.id === selectedItem?.id ? "rgba(51, 102, 255, 0.08)" : null,
+      }}
     />
   );
 };

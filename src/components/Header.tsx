@@ -16,7 +16,6 @@ interface Props {
 function Header({ theme, setTheme }: Props) {
   const [value, setValue] = useState("");
   const { width } = useWindowDimensions();
-  console.log(width);
 
   const ToggleIcon = (props) => (
     <Icon {...props} name={theme === AppTheme.LIGHT ? "moon" : "sun"} />

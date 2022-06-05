@@ -8,6 +8,7 @@ import QuestionDetail from "./QuestionDetail";
 import { Question, SidebarItem } from "../data-contracts";
 import { observer } from "mobx-react-lite";
 import { IStore } from "../stores";
+import QuestionList from "./QuestionList";
 
 interface Props {
   store: IStore;
@@ -44,27 +45,16 @@ export const QuestionContainer = observer(({ store }: Props) => {
   useEffect(() => {
     (async () => {
       getQuestions(SidebarItem.JAVASCRIPT);
-      console.log(javasctipt);
     })();
   }, []);
 
-  const renderQuestion = ({ item, index }) => {
-    if (Platform.OS === "web") {
-      return (
-        <QuestionItemWeb
-          key={item.title}
-          item={item}
-          index={index}
-          setSlected={setSelectedQuestion}
-          onFavPress={onFavPress}
-        />
-      );
-    }
-    return <QuestionItem key={item.title} item={item} />;
+  const onSearch = (value) => {
+    setValue(value);
   };
 
   const renderList = () => {
     if (Platform.OS === "web") {
+      console.log("web");
       return (
         <>
           {isLoading && <Loader />}
@@ -77,15 +67,18 @@ export const QuestionContainer = observer(({ store }: Props) => {
                 },
               ]}
             >
-              {/* <Input
+              <Input
                 placeholder="Search"
+                size="small"
                 value={value}
-                onChangeText={(nextValue) => setValue(nextValue)}
-              /> */}
-              <List
-                data={listData}
-                ItemSeparatorComponent={Divider}
-                renderItem={renderQuestion}
+                onChangeText={onSearch}
+              />
+
+              <QuestionList
+                listData={listData}
+                toggleFav={toggleFavorite}
+                selectedQuestion={selectedQuestion}
+                setSelectedQuestion={setSelectedQuestion}
               />
             </View>
             <View
@@ -105,10 +98,16 @@ export const QuestionContainer = observer(({ store }: Props) => {
     return (
       <>
         {isLoading && <Loader />}
-        <List
-          data={listData}
-          ItemSeparatorComponent={Divider}
-          renderItem={renderQuestion}
+        <Input
+          placeholder="Search"
+          value={value}
+          onChangeText={(nextValue) => setValue(nextValue)}
+        />
+        <QuestionList
+          listData={listData}
+          toggleFav={toggleFavorite}
+          selectedQuestion={selectedQuestion}
+          setSelectedQuestion={setSelectedQuestion}
         />
       </>
     );
@@ -129,9 +128,7 @@ const styles = StyleSheet.create({
   panelRight: {
     width: `60%`,
     overflow: "scroll",
-    // borderColor: "rgba(0,0,0,0.1)",
     padding: 16,
     paddingRight: 32,
-    // borderLeftWidth: 1,
   },
 });
