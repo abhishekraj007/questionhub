@@ -6,16 +6,21 @@ export interface IQuestionStore {
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
   javasctipt: Question[];
-  javasctiptFavorites: Question[];
   setJavascript: (questions: Question[]) => void;
+  javasctiptFavorites: Question[];
   setJavascriptFavorites: (questions: Question[]) => void;
+  filteredList: Question[];
+  setFilteredList: (questions: Question[]) => void;
   getQuestions: (type: SidebarItem) => void;
-  toggleFavorite: (item: Question) => void;
+  toggleFavorite: (item: Question, category?: SidebarItem) => void;
+  searchQuestion: (text: string, category?: string) => void;
+  clearFilter: (selectedCategory) => void;
 }
 
 export class QuestionStore implements IQuestionStore {
   isLoading: boolean = false;
   javasctipt: Question[] = [];
+  filteredList: Question[] = [];
   javasctiptFavorites: Question[] = [];
 
   constructor() {
@@ -45,8 +50,10 @@ export class QuestionStore implements IQuestionStore {
           console.log("made fresh api call");
           this.setIsLoading(true);
           const data = await getJSQuestions();
+          const currentList = this.includeFavorites(data);
 
-          this.setJavascript(this.includeFavorites(data));
+          this.setJavascript(currentList);
+          this.setFilteredList(currentList);
         } catch (error) {
           console.log(error);
         } finally {
@@ -59,6 +66,10 @@ export class QuestionStore implements IQuestionStore {
     this.javasctipt = data;
   };
 
+  setFilteredList = (data: Question[]) => {
+    this.filteredList = data;
+  };
+
   setIsLoading = (isLoading: boolean) => {
     this.isLoading = isLoading;
   };
@@ -68,31 +79,50 @@ export class QuestionStore implements IQuestionStore {
     this.javasctiptFavorites = data;
   };
 
-  toggleFavorite = (item: Question) => {
+  searchQuestion = (text: string, category: SidebarItem) => {
+    let filtered = [];
+
+    switch (category) {
+      case SidebarItem.JAVASCRIPT_FAVORITE:
+        filtered = this.javasctiptFavorites.filter((q) => {
+          return q.title.toLocaleLowerCase().includes(text.toLocaleLowerCase());
+        });
+        break;
+      default:
+        filtered = this.javasctipt.filter((q) => {
+          return q.title.toLocaleLowerCase().includes(text.toLowerCase());
+        });
+    }
+
+    this.setFilteredList(filtered);
+  };
+
+  clearFilter = (selectedCategory: any) => {
+    switch (selectedCategory) {
+      case SidebarItem.JAVASCRIPT:
+        this.setFilteredList(this.javasctipt);
+        break;
+      case SidebarItem.JAVASCRIPT_FAVORITE:
+        this.setFilteredList(this.javasctiptFavorites);
+        break;
+      default:
+        this.setFilteredList(this.javasctipt);
+    }
+  };
+
+  toggleFavorite = (item: Question, category?: SidebarItem) => {
     // If item is present in fav list remove it
 
     const foundedIndex = this.javasctiptFavorites.findIndex(
       (fav) => fav.id === item.id
     );
 
-    console.log(foundedIndex);
     let foundedEle = this.javasctiptFavorites[foundedIndex];
 
-    // Present in fav
     if (foundedIndex >= 0) {
-      console.log("found an ele");
-      // remove from fav
-      const newFav = this.javasctiptFavorites.filter(
-        (item) => item.id !== foundedEle.id
-      );
-      console.log(newFav);
-      this.setJavascriptFavorites(newFav);
-      // toggle state in original array as well
-      // foundedEle = {
-      //   ...foundedEle,
-      //   bookmarked: false,
-      // };
-      const newRawData = this.javasctipt.map((ele) => {
+      // Remove from fav
+
+      const newJsData = this.javasctipt.map((ele) => {
         if (ele.id === foundedEle.id) {
           return {
             ...ele,
@@ -101,16 +131,47 @@ export class QuestionStore implements IQuestionStore {
         }
         return ele;
       });
+      this.setJavascript(newJsData);
 
-      this.setJavascript(newRawData);
-    } else {
-      const nonFavData = this.javasctipt.filter(
-        (question) => question.id !== item.id
+      const newJsFavData = this.javasctiptFavorites.filter(
+        (item) => item.id !== foundedEle.id
       );
+      this.setJavascriptFavorites(newJsFavData);
 
-      this.setJavascript([item, ...nonFavData]);
+      // Set new list based on category
+      if (category === SidebarItem.JAVASCRIPT) {
+        this.setFilteredList(newJsData);
+      }
+      if (category === SidebarItem.JAVASCRIPT_FAVORITE) {
+        this.setFilteredList(newJsFavData);
+      }
+    } else {
+      // Add to fav
 
-      this.setJavascriptFavorites([...this.javasctiptFavorites, item]);
+      const newJsData = this.javasctipt.map((question) => {
+        if (question.id === item.id) {
+          return {
+            ...item,
+            bookmarked: true,
+          };
+        }
+        return question;
+      });
+      this.setJavascript(newJsData);
+
+      const newJsFavData = [
+        { ...item, bookmarked: true },
+        ...this.javasctiptFavorites,
+      ];
+      this.setJavascriptFavorites(newJsFavData);
+
+      // Set new list based on category
+      if (category === SidebarItem.JAVASCRIPT) {
+        this.setFilteredList(newJsData);
+      }
+      if (category === SidebarItem.JAVASCRIPT_FAVORITE) {
+        this.setFilteredList(newJsFavData);
+      }
     }
   };
 }

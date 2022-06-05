@@ -8,6 +8,7 @@ import {
 } from "@ui-kitten/components";
 import { observer } from "mobx-react-lite";
 import { View } from "react-native";
+import { getCategory } from "../data-contracts";
 import { IStore } from "../stores";
 
 interface Props {
@@ -35,7 +36,7 @@ export const Sidebar = observer(
           borderRadius: 20,
         }}
       >
-        <Text category="label" appearance="hint" status="warning">
+        <Text category="label" appearance="hint" status="primary">
           {javasctiptFavorites.length}
         </Text>
       </View>
@@ -53,7 +54,9 @@ export const Sidebar = observer(
       <Menu
         selectedIndex={menuStore.selectedMenu}
         onSelect={(index) => {
+          console.log(index);
           menuStore.setSelectedMenu(index);
+          questionStore.clearFilter(getCategory(index));
         }}
       >
         {javasctiptFavorites?.length ? (

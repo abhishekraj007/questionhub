@@ -1,31 +1,26 @@
 import React, { memo } from "react";
-import { Question } from "../data-contracts";
-import { Button, Icon, ListItem } from "@ui-kitten/components";
+import { getCategory, Question, SidebarItem } from "../data-contracts";
+import { Button, Icon, IndexPath, ListItem } from "@ui-kitten/components";
 
 interface QuestionItemWebProps {
   item: Question;
   selectedItem: Question;
   index: number;
   setSlected: (item: Question) => void;
-  onFavPress: (item: Question) => void;
+  toggleFavorite: (item: Question, category: SidebarItem) => void;
+  selectedMenu: IndexPath;
 }
 
 const QuestionItemWeb = ({
   item,
   setSlected,
   index,
-  onFavPress,
+  toggleFavorite,
   selectedItem,
+  selectedMenu,
 }: QuestionItemWebProps) => {
   const onItemClick = () => {
     setSlected(item);
-  };
-
-  const toggleFav = () => {
-    onFavPress({
-      ...item,
-      bookmarked: !item.bookmarked,
-    });
   };
 
   const StarIcon = (props) => (
@@ -37,7 +32,7 @@ const QuestionItemWeb = ({
       <Button
         size="tiny"
         appearance="ghost"
-        onPress={toggleFav}
+        onPress={() => toggleFavorite(item, getCategory(selectedMenu))}
         status={item?.bookmarked ? "danger" : "basic"}
         accessoryLeft={StarIcon}
       />

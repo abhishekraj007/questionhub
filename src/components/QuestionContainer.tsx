@@ -14,33 +14,32 @@ interface Props {
   store: IStore;
 }
 
+let searchTimer;
+
 export const QuestionContainer = observer(({ store }: Props) => {
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
   const { height: screenHeight } = useWindowDimensions();
 
   const [value, setValue] = useState("");
 
-  console.log("render q container");
-
   const {
     menuStore: { selectedMenu },
     questionStore: {
       isLoading,
-      javasctipt,
-      javasctiptFavorites,
       getQuestions,
       toggleFavorite,
+      searchQuestion,
+      filteredList,
     },
   } = store;
 
   const isFavMenuSelected =
     selectedMenu.row === 1 && selectedMenu.section === 0;
 
-  const listData = isFavMenuSelected ? javasctiptFavorites : javasctipt;
-
-  const onFavPress = (item: Question) => {
-    toggleFavorite(item);
-  };
+  const listData = filteredList;
+  const searchCategory = isFavMenuSelected
+    ? SidebarItem.JAVASCRIPT_FAVORITE
+    : SidebarItem.JAVASCRIPT;
 
   useEffect(() => {
     (async () => {
@@ -48,13 +47,17 @@ export const QuestionContainer = observer(({ store }: Props) => {
     })();
   }, []);
 
-  const onSearch = (value) => {
+  const onSearch = (value: string) => {
     setValue(value);
+
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      searchQuestion(value, searchCategory);
+    }, 300);
   };
 
   const renderList = () => {
     if (Platform.OS === "web") {
-      console.log("web");
       return (
         <>
           {isLoading && <Loader />}
@@ -76,9 +79,10 @@ export const QuestionContainer = observer(({ store }: Props) => {
 
               <QuestionList
                 listData={listData}
-                toggleFav={toggleFavorite}
+                toggleFavorite={toggleFavorite}
                 selectedQuestion={selectedQuestion}
                 setSelectedQuestion={setSelectedQuestion}
+                selectedMenu={selectedMenu}
               />
             </View>
             <View
@@ -105,9 +109,10 @@ export const QuestionContainer = observer(({ store }: Props) => {
         />
         <QuestionList
           listData={listData}
-          toggleFav={toggleFavorite}
+          toggleFavorite={toggleFavorite}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}
+          selectedMenu={selectedMenu}
         />
       </>
     );

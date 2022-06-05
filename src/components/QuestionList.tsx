@@ -6,24 +6,26 @@ import QuestionItemWeb from "./QuestionItemWeb";
 
 function QuestionList({
   listData,
-  toggleFav,
+  toggleFavorite,
   setSelectedQuestion,
   selectedQuestion,
+  selectedMenu,
 }) {
   const renderQuestion = ({ item, index }) => {
     if (Platform.OS === "web") {
       return (
         <QuestionItemWeb
-          key={item.title}
+          key={item?.id}
           item={item}
           index={index}
           setSlected={setSelectedQuestion}
           selectedItem={selectedQuestion}
-          onFavPress={toggleFav}
+          toggleFavorite={toggleFavorite}
+          selectedMenu={selectedMenu}
         />
       );
     }
-    return <QuestionItem key={item.title} item={item} />;
+    return <QuestionItem key={item?.title} item={item} />;
   };
 
   console.log("Render q list");
