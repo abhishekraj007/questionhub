@@ -28,7 +28,6 @@ function QuestionList({
     return <QuestionItem key={item?.title} item={item} />;
   };
 
-  console.log("Render q list");
   return (
     <List
       data={listData}

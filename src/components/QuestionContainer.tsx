@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
-import QuestionItem from "./QuestionItem";
-import QuestionItemWeb from "./QuestionItemWeb";
 import Loader from "./Loader";
-import { Divider, Input, List } from "@ui-kitten/components";
+import { Input } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
-import { Question, SidebarItem } from "../data-contracts";
+import { getCategory, Question, SidebarItem } from "../data-contracts";
 import { observer } from "mobx-react-lite";
 import { IStore } from "../stores";
 import QuestionList from "./QuestionList";
@@ -17,11 +15,6 @@ interface Props {
 let searchTimer;
 
 export const QuestionContainer = observer(({ store }: Props) => {
-  const [selectedQuestion, setSelectedQuestion] = useState<Question>();
-  const { height: screenHeight } = useWindowDimensions();
-
-  const [value, setValue] = useState("");
-
   const {
     menuStore: { selectedMenu },
     questionStore: {
@@ -30,29 +23,53 @@ export const QuestionContainer = observer(({ store }: Props) => {
       toggleFavorite,
       searchQuestion,
       filteredList,
+      setFilteredList,
+      react,
+      javascript,
     },
   } = store;
 
-  const isFavMenuSelected =
-    selectedMenu.row === 1 && selectedMenu.section === 0;
+  console.log(filteredList);
 
-  const listData = filteredList;
-  const searchCategory = isFavMenuSelected
-    ? SidebarItem.JAVASCRIPT_FAVORITE
-    : SidebarItem.JAVASCRIPT;
+  const [selectedQuestion, setSelectedQuestion] = useState<Question>();
+  const { height: screenHeight } = useWindowDimensions();
 
+  const [value, setValue] = useState("");
+
+  // On Load
   useEffect(() => {
     (async () => {
       getQuestions(SidebarItem.JAVASCRIPT);
     })();
   }, []);
 
+  // On Menu change
+  useEffect(() => {
+    // set list data based on menu selection
+    const selectedCategory = getCategory(selectedMenu);
+    console.log(selectedCategory);
+    if (selectedCategory === SidebarItem.JAVASCRIPT) {
+      console.log("set js");
+      setFilteredList(javascript.data);
+    } else if (selectedCategory === SidebarItem.JAVASCRIPT_FAVORITE) {
+      setFilteredList(javascript.fav);
+    } else if (selectedCategory === SidebarItem.REACT) {
+      if (react.data.length) {
+        setFilteredList(react.data);
+      } else {
+        getQuestions(SidebarItem.REACT);
+      }
+    } else if (selectedCategory === SidebarItem.REACT_FAVORITE) {
+      setFilteredList(react.fav);
+    }
+  }, [selectedMenu]);
+
   const onSearch = (value: string) => {
     setValue(value);
 
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
-      searchQuestion(value, searchCategory);
+      searchQuestion(value, getCategory(selectedMenu));
     }, 300);
   };
 
@@ -78,7 +95,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
               />
 
               <QuestionList
-                listData={listData}
+                listData={filteredList}
                 toggleFavorite={toggleFavorite}
                 selectedQuestion={selectedQuestion}
                 setSelectedQuestion={setSelectedQuestion}
@@ -108,7 +125,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
           onChangeText={(nextValue) => setValue(nextValue)}
         />
         <QuestionList
-          listData={listData}
+          listData={filteredList}
           toggleFavorite={toggleFavorite}
           selectedQuestion={selectedQuestion}
           setSelectedQuestion={setSelectedQuestion}

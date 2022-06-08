@@ -17,14 +17,14 @@ interface Props {
 
 export const Sidebar = observer(
   ({ store: { menuStore, questionStore } }: Props) => {
-    const { javasctiptFavorites } = questionStore;
+    const { javascript, react, allFavorites } = questionStore;
     const theme = useTheme();
 
     const StarIcon = (props) => (
       <Icon {...props} style={{ width: 16, height: 16 }} name="star-outline" />
     );
 
-    const FavCount = () => (
+    const FavCount = (data) => (
       <View
         style={{
           backgroundColor: theme["border-basic-color-4"],
@@ -37,7 +37,7 @@ export const Sidebar = observer(
         }}
       >
         <Text category="label" appearance="hint" status="primary">
-          {javasctiptFavorites.length}
+          {data.length}
         </Text>
       </View>
     );
@@ -59,20 +59,32 @@ export const Sidebar = observer(
           questionStore.clearFilter(getCategory(index));
         }}
       >
-        {javasctiptFavorites?.length ? (
+        {javascript?.fav.length ? (
           <MenuGroup title="Javascript">
             <MenuItem title="All" accessoryLeft={BookOpen} />
             <MenuItem
               title="Favorites"
               accessoryLeft={StarIcon}
-              accessoryRight={FavCount}
+              accessoryRight={FavCount(javascript.fav)}
             />
           </MenuGroup>
         ) : (
           <MenuItem title="Javascript" />
         )}
 
-        <MenuItem title="React" />
+        {react?.fav.length ? (
+          <MenuGroup title="React">
+            <MenuItem title="All" accessoryLeft={BookOpen} />
+            <MenuItem
+              title="Favorites"
+              accessoryLeft={StarIcon}
+              accessoryRight={FavCount(react.fav)}
+            />
+          </MenuGroup>
+        ) : (
+          <MenuItem title="React" />
+        )}
+
         <MenuItem title="HTML"></MenuItem>
         <MenuItem title="CSS"></MenuItem>
         <MenuItem title="Accessibility"></MenuItem>
