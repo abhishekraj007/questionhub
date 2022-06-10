@@ -17,6 +17,7 @@ let searchTimer;
 export const QuestionContainer = observer(({ store }: Props) => {
   const {
     menuStore: { selectedMenu },
+    authStore: { user, setShowLoginModal },
     questionStore: {
       isLoading,
       getQuestions,
@@ -28,8 +29,6 @@ export const QuestionContainer = observer(({ store }: Props) => {
       javascript,
     },
   } = store;
-
-  console.log(filteredList);
 
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
   const { height: screenHeight } = useWindowDimensions();
@@ -43,13 +42,21 @@ export const QuestionContainer = observer(({ store }: Props) => {
     })();
   }, []);
 
+  const onFavToggle = (item: Question, category: SidebarItem) => {
+    // Allow fav only if user is loggedIn
+    if (user) {
+      toggleFavorite(item, category, user?.id);
+      // Otherwise show login modal
+    } else {
+      setShowLoginModal(true);
+    }
+  };
+
   // On Menu change
   useEffect(() => {
     // set list data based on menu selection
     const selectedCategory = getCategory(selectedMenu);
-    console.log(selectedCategory);
     if (selectedCategory === SidebarItem.JAVASCRIPT) {
-      console.log("set js");
       setFilteredList(javascript.data);
     } else if (selectedCategory === SidebarItem.JAVASCRIPT_FAVORITE) {
       setFilteredList(javascript.fav);
@@ -96,7 +103,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
 
               <QuestionList
                 listData={filteredList}
-                toggleFavorite={toggleFavorite}
+                toggleFavorite={onFavToggle}
                 selectedQuestion={selectedQuestion}
                 setSelectedQuestion={setSelectedQuestion}
                 selectedMenu={selectedMenu}
@@ -116,6 +123,8 @@ export const QuestionContainer = observer(({ store }: Props) => {
         </>
       );
     }
+
+    // Work For mobile here
     return (
       <>
         {isLoading && <Loader />}

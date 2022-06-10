@@ -1,41 +1,88 @@
 import React, { useState } from "react";
 import {
+  Button,
   Icon,
-  Input,
   TopNavigation,
   TopNavigationAction,
+  OverflowMenu,
+  MenuItem,
+  Text,
 } from "@ui-kitten/components";
 import { AppTheme } from "../data-contracts";
-import { useWindowDimensions, View } from "react-native";
+import { View } from "react-native";
+import { IStore } from "../stores";
+import { observer } from "mobx-react-lite";
 
 interface Props {
   theme: AppTheme;
   setTheme: (theme: AppTheme) => void;
+  store: IStore;
 }
 
-function Header({ theme, setTheme }: Props) {
-  const [value, setValue] = useState("");
-  const { width } = useWindowDimensions();
+function Header({
+  theme,
+  setTheme,
+  store: { authStore, questionStore },
+}: Props) {
+  const { user, isLoggedIn, setShowLoginModal } = authStore;
+  const [visible, setVisible] = useState(false);
+
+  const onItemSelect = () => {
+    setVisible(false);
+  };
+
+  const onLogin = () => {
+    setShowLoginModal(true);
+  };
+
+  const onLogout = () => {
+    authStore.logout();
+  };
 
   const ToggleIcon = (props) => (
     <Icon {...props} name={theme === AppTheme.LIGHT ? "moon" : "sun"} />
   );
 
-  const SearchBar = () => (
-    <View
-      style={{
-        width: width - 440,
-        maxWidth: 600,
-        marginRight: width / 8,
-      }}
-    >
-      <Input
-        placeholder="Search"
-        value={value}
-        onChangeText={(nextValue) => setValue(nextValue)}
-      />
-    </View>
+  const Ellipsis = (props) => <Icon {...props} name="more-vertical-outline" />;
+  const GoogleIcon = (props) => <Icon {...props} name="google" />;
+
+  const renderToggleButton = () => (
+    <Button
+      onPress={() => setVisible(true)}
+      appearance="ghost"
+      size="small"
+      accessoryLeft={Ellipsis}
+    />
   );
+
+  const renderOverflowMenu = () => {
+    return (
+      <OverflowMenu
+        anchor={renderToggleButton}
+        visible={visible}
+        onSelect={onItemSelect}
+        onBackdropPress={() => setVisible(false)}
+      >
+        {isLoggedIn && <MenuItem title={user?.displayName} disabled={true} />}
+
+        {isLoggedIn && (
+          <MenuItem
+            onPress={onLogout}
+            title="Logout"
+            accessoryLeft={GoogleIcon}
+          />
+        )}
+
+        {!isLoggedIn && (
+          <MenuItem
+            onPress={onLogin}
+            title="Login"
+            accessoryLeft={GoogleIcon}
+          />
+        )}
+      </OverflowMenu>
+    );
+  };
 
   const renderRightNav = () => {
     return (
@@ -44,16 +91,18 @@ function Header({ theme, setTheme }: Props) {
           display: "flex",
           flexDirection: "row",
           alignItems: "center",
-          // width: "80%",
         }}
       >
-        {/* <SearchBar /> */}
         <TopNavigationAction
           onPress={() => {
             setTheme(theme === AppTheme.LIGHT ? AppTheme.DARK : AppTheme.LIGHT);
           }}
           icon={ToggleIcon}
+          style={{
+            marginLeft: 16,
+          }}
         />
+        {renderOverflowMenu()}
       </View>
     );
   };
@@ -65,10 +114,9 @@ function Header({ theme, setTheme }: Props) {
         paddingRight: 16,
       }}
       title={"Interview Questions"}
-      // accessoryLeft={SearchBar}
       accessoryRight={renderRightNav}
     ></TopNavigation>
   );
 }
 
-export default Header;
+export default observer(Header);

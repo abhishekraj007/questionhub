@@ -5,7 +5,17 @@ export interface Question {
   title: string;
   content: string[];
   bookmarked?: boolean;
-  category?: string;
+  type?: string;
+}
+export interface User {
+  id: string;
+  displayName?: string;
+  email?: string;
+}
+
+export interface Favorites {
+  id: string;
+  type: string;
 }
 
 export enum SidebarItem {

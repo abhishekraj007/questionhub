@@ -5,6 +5,7 @@ import {
   Divider,
   Layout,
   IconRegistry,
+  Card,
 } from "@ui-kitten/components";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Sidebar } from "./src/components/Sidebar";
@@ -15,6 +16,7 @@ import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import Header from "./src/components/Header";
 import { useEffect } from "react";
 import { Store } from "./src/stores";
+import LoginModal from "./src/components/LoginModal";
 
 const store = new Store();
 
@@ -38,9 +40,9 @@ export default () => {
         {...eva}
         theme={theme === AppTheme.LIGHT ? eva.light : eva.dark}
       >
-        <Header theme={theme} setTheme={setTheme} />
+        <Header store={store} theme={theme} setTheme={setTheme} />
         <Divider />
-        <Layout style={styles.container}>
+        <Layout style={styles.container} level="3">
           <View
             style={{
               width: "280px",
@@ -56,6 +58,7 @@ export default () => {
             <QuestionContainer store={store} />
           </View>
         </Layout>
+        <LoginModal store={store} />
       </ApplicationProvider>
     </>
   );

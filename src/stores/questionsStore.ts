@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import { apiGetQuestions, URLS } from "../apis";
+import { apiGetQuestions, URLS, apiUpdateUser } from "../apis";
 import { getCategoryKey, Question, SidebarItem } from "../data-contracts";
 
 interface IQModel {
@@ -22,7 +22,11 @@ export interface IQuestionStore {
   allFavorites: Question[];
   setAllFavorites: (questions: Question[]) => void;
   getQuestions: (type: SidebarItem) => void;
-  toggleFavorite: (item: Question, category?: SidebarItem) => void;
+  toggleFavorite: (
+    item: Question,
+    category?: SidebarItem,
+    userId?: string
+  ) => void;
   searchQuestion: (text: string, category?: string) => void;
   clearFilter: (selectedCategory) => void;
   questions?: {
@@ -49,24 +53,24 @@ export class QuestionStore implements IQuestionStore {
     makeAutoObservable(this);
 
     // Get favorites from localstore
-    const jsFavString = localStorage.getItem("javascript");
-    const reactFavString = localStorage.getItem("react");
+    // const jsFavString = localStorage.getItem("javascript");
+    // const reactFavString = localStorage.getItem("react");
 
-    if (jsFavString) {
-      this.setJavascript({
-        ...this.javascript,
-        fav: JSON.parse(jsFavString),
-      });
-      this.setAllFavorites([...this.allFavorites, JSON.parse(jsFavString)]);
-    }
+    // if (jsFavString) {
+    //   this.setJavascript({
+    //     ...this.javascript,
+    //     fav: JSON.parse(jsFavString),
+    //   });
+    //   this.setAllFavorites([...this.allFavorites, JSON.parse(jsFavString)]);
+    // }
 
-    if (reactFavString) {
-      this.setReact({
-        ...this.react,
-        fav: JSON.parse(reactFavString),
-      });
-      this.setAllFavorites([...this.allFavorites, JSON.parse(reactFavString)]);
-    }
+    // if (reactFavString) {
+    //   this.setReact({
+    //     ...this.react,
+    //     fav: JSON.parse(reactFavString),
+    //   });
+    //   this.setAllFavorites([...this.allFavorites, JSON.parse(reactFavString)]);
+    // }
   }
 
   includeFavorites = (data: Question[], favs: Question[]) => {
@@ -182,7 +186,11 @@ export class QuestionStore implements IQuestionStore {
     }
   };
 
-  toggleFavorite = (item: Question, category?: SidebarItem) => {
+  toggleFavorite = (
+    item: Question,
+    category?: SidebarItem,
+    userId?: string
+  ) => {
     // If item is present in fav list remove it
     const { getMenuKey, setMenuKey } = getCategoryKey(category);
 
@@ -238,6 +246,18 @@ export class QuestionStore implements IQuestionStore {
         this.setFilteredList(newFavList);
     }
     this.setAllFavorites([...this.javascript.fav, ...this.react.fav]);
-    localStorage.setItem(getMenuKey, JSON.stringify(newFavList));
+    console.log("userId", userId);
+
+    apiUpdateUser({
+      id: userId,
+      favs: this.allFavorites.map((item) => {
+        return {
+          type: item.type,
+          id: item.id,
+        };
+      }),
+    });
+
+    // localStorage.setItem(getMenuKey, JSON.stringify(newFavList));
   };
 }
