@@ -1,6 +1,13 @@
 import { makeAutoObservable } from "mobx";
-import { apiGetQuestions, URLS, apiUpdateUser } from "../apis";
-import { getCategoryKey, Question, SidebarItem } from "../data-contracts";
+import { apiGetQuestions, URLS, apiUpdateUser, apiGetUserData } from "../apis";
+import {
+  Favorites,
+  getCategoryKey,
+  Question,
+  questionCategoriesList,
+  QuestionMap,
+  SidebarItem,
+} from "../data-contracts";
 
 interface IQModel {
   data: Question[];
@@ -21,7 +28,7 @@ export interface IQuestionStore {
   setFilteredList: (questions: Question[]) => void;
   allFavorites: Question[];
   setAllFavorites: (questions: Question[]) => void;
-  getQuestions: (type: SidebarItem) => void;
+  getQuestions: (type: SidebarItem, userId?: string) => void;
   toggleFavorite: (
     item: Question,
     category?: SidebarItem,
@@ -33,6 +40,9 @@ export interface IQuestionStore {
     js: IQModel;
     react: IQModel;
   };
+  userFavs: Favorites[];
+  setUserFavs: (data: Favorites[], category: SidebarItem) => void;
+  questionsMap: any;
 }
 
 export class QuestionStore implements IQuestionStore {
@@ -44,33 +54,46 @@ export class QuestionStore implements IQuestionStore {
     fav: [],
   };
 
+  questionsMap = {};
+
   react: IQModel = {
     data: [],
     fav: [],
   };
+  userFavs: Favorites[] = [];
+
+  // This is when user loads the page
+  setUserFavs = (favList: Favorites[], category?: SidebarItem) => {
+    // Add user bookmarked list
+    this.userFavs = favList;
+    const { getMenuKey, setMenuKey } = getCategoryKey(category);
+
+    // Filter bookmarked items by category
+
+    const favs = (favList ?? [])
+      .map((item) => {
+        console.log(category, item.type);
+        if (item.type === category) {
+          return { ...this.questionsMap[item.id], bookmarked: true };
+        }
+      })
+      .filter((item) => item);
+    console.log(favs);
+
+    const currentListIncludingFav = this.includeFavorites(
+      this[getMenuKey].data,
+      favs
+    );
+
+    this[setMenuKey]({
+      fav: favs,
+      data: currentListIncludingFav,
+    });
+    this.setFilteredList(currentListIncludingFav);
+  };
 
   constructor() {
     makeAutoObservable(this);
-
-    // Get favorites from localstore
-    // const jsFavString = localStorage.getItem("javascript");
-    // const reactFavString = localStorage.getItem("react");
-
-    // if (jsFavString) {
-    //   this.setJavascript({
-    //     ...this.javascript,
-    //     fav: JSON.parse(jsFavString),
-    //   });
-    //   this.setAllFavorites([...this.allFavorites, JSON.parse(jsFavString)]);
-    // }
-
-    // if (reactFavString) {
-    //   this.setReact({
-    //     ...this.react,
-    //     fav: JSON.parse(reactFavString),
-    //   });
-    //   this.setAllFavorites([...this.allFavorites, JSON.parse(reactFavString)]);
-    // }
   }
 
   includeFavorites = (data: Question[], favs: Question[]) => {
@@ -82,38 +105,55 @@ export class QuestionStore implements IQuestionStore {
     return [...favs, ...data];
   };
 
-  getQuestions = async (type: SidebarItem) => {
+  getQuestions = async (category: SidebarItem, userId?: string) => {
     try {
       console.log("made fresh api call");
       this.setIsLoading(true);
       let data = [];
 
-      switch (type) {
+      switch (category) {
         case SidebarItem.JAVASCRIPT:
+          // Get js questions and set to store
           data = await apiGetQuestions(URLS.js);
-          const currentJsListIncludingFavs = this.includeFavorites(
-            data,
-            this.javascript.fav
-          );
           this.setJavascript({
             ...this.javascript,
-            data: currentJsListIncludingFavs,
+            data,
           });
-          this.setFilteredList(currentJsListIncludingFavs);
-          // console.log("Made js call", currentJsListIncludingFavs);
+
+          // Add data to questionMap
+          data.forEach((item) => {
+            this.questionsMap[item?.id] = item;
+          });
+
+          // If user is loged in get bookmarked Item
+          // Otherwise there is no bookmared
+
+          if (userId) {
+            const userSnap = await apiGetUserData(userId);
+            this.setUserFavs(userSnap.data().favs, category);
+          } else {
+            this.setFilteredList(data);
+          }
+
           break;
         case SidebarItem.REACT:
           data = await apiGetQuestions(URLS.react);
-          const currentDataIncludingFavs = this.includeFavorites(
-            data,
-            this.react.fav
-          );
+
           this.setReact({
             ...this.react,
-            data: currentDataIncludingFavs,
+            data,
           });
-          this.setFilteredList(currentDataIncludingFavs);
-          // console.log("made react call", currentDataIncludingFavs);
+
+          data.forEach((item) => {
+            this.questionsMap[item?.id] = item;
+          });
+
+          if (this.userFavs) {
+            this.setUserFavs(this.userFavs, category);
+          } else {
+            this.setFilteredList(data);
+          }
+
           break;
         default:
           console.log("Made no call");

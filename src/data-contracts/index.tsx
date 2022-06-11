@@ -18,6 +18,13 @@ export interface Favorites {
   type: string;
 }
 
+export interface QuestionMap {
+  id: string;
+  question: Question;
+}
+
+export const questionCategoriesList = ["javascript", "react"];
+
 export enum SidebarItem {
   JAVASCRIPT = "JAVASCRIPT",
   JAVASCRIPT_FAVORITE = "JAVASCRIPT_FAVORITE",

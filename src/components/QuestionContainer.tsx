@@ -7,6 +7,7 @@ import { getCategory, Question, SidebarItem } from "../data-contracts";
 import { observer } from "mobx-react-lite";
 import { IStore } from "../stores";
 import QuestionList from "./QuestionList";
+import { apiGetUserData } from "../apis";
 
 interface Props {
   store: IStore;
@@ -27,6 +28,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
       setFilteredList,
       react,
       javascript,
+      setUserFavs,
     },
   } = store;
 
@@ -38,7 +40,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
   // On Load
   useEffect(() => {
     (async () => {
-      getQuestions(SidebarItem.JAVASCRIPT);
+      getQuestions(SidebarItem.JAVASCRIPT, user?.id);
     })();
   }, []);
 

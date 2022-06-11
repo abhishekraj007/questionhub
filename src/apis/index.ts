@@ -5,6 +5,7 @@ import {
   setDoc,
   doc,
   updateDoc,
+  getDoc,
 } from "firebase/firestore/lite";
 import { User } from "../data-contracts";
 import { db, signInWithGoogle } from "../firebase-config";
@@ -77,6 +78,18 @@ export const apiUpdateUser = async (payload: any) => {
   try {
     const response = await updateDoc(userRef, payload);
     return response;
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
+// Get user data
+export const apiGetUserData = async (userId) => {
+  try {
+    // Get This user from databse
+    const userRef = doc(db, "users", userId);
+    const userSnap = await getDoc(userRef);
+    return userSnap;
   } catch (error) {
     throw new Error(error);
   }

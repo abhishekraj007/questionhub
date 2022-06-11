@@ -3,15 +3,23 @@ import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Button, Card, Icon, Modal, Text } from "@ui-kitten/components";
 import { doc, getDoc } from "firebase/firestore/lite";
 import { db } from "../firebase-config";
-import { apiAddUser, apiLogInWithGoogle, apiUpdateUser } from "../apis";
+import {
+  apiAddUser,
+  apiGetUserData,
+  apiLogInWithGoogle,
+  apiUpdateUser,
+} from "../apis";
 import { IStore } from "../stores";
 import { observer } from "mobx-react-lite";
+import { getCategory } from "../data-contracts";
 
 interface Props {
   store: IStore;
 }
 
-const LoginModal = ({ store: { authStore } }: Props) => {
+const LoginModal = ({
+  store: { menuStore, authStore, questionStore },
+}: Props) => {
   const {
     user,
     setUser,
@@ -20,6 +28,8 @@ const LoginModal = ({ store: { authStore } }: Props) => {
     showLoginModal,
     setShowLoginModal,
   } = authStore;
+  const { setUserFavs } = questionStore;
+  const { selectedMenu } = menuStore;
 
   const { width } = useWindowDimensions();
 
@@ -37,16 +47,14 @@ const LoginModal = ({ store: { authStore } }: Props) => {
       setUser(newUser);
       setIsLoggedIn(true);
 
-      // Get This user from databse
-      const userRef = doc(db, "users", newUser.id);
-      const userSnap = await getDoc(userRef);
+      const userSnap = await apiGetUserData(newUser.id);
 
       // Check if this user exist
       if (userSnap.exists()) {
-        console.log("user data -< ", userSnap.data());
+        // TODO: Can we use to reload page
+        setUserFavs(userSnap?.data()?.favs, getCategory(selectedMenu));
       } else {
         // Add this user to database
-        console.log("adding user");
         await apiAddUser(newUser);
       }
     } catch (error) {
