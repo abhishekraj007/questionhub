@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import { getCategory, Question, SidebarItem } from "../data-contracts";
-import { Button, Icon, IndexPath, ListItem } from "@ui-kitten/components";
+import { Button, Icon, IndexPath, ListItem, Text } from "@ui-kitten/components";
 
 interface QuestionItemWebProps {
   item: Question;
@@ -39,9 +39,20 @@ const QuestionItemWeb = ({
     );
   };
 
+  const Title = () => {
+    return (
+      <Text
+        category="s1"
+        style={{
+          fontSize: 16,
+        }}
+      >{`${index + 1}. ${item?.title}`}</Text>
+    );
+  };
+
   return (
     <ListItem
-      title={`${index + 1}. ${item?.title}`}
+      title={Title}
       onPress={onItemClick}
       accessoryRight={favButton}
       style={{

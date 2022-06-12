@@ -102,7 +102,21 @@ function Header({
             marginLeft: 16,
           }}
         />
-        {renderOverflowMenu()}
+        {!isLoggedIn && (
+          <Button
+            appearance="outline"
+            status="primary"
+            accessoryLeft={GoogleIcon}
+            onPress={onLogin}
+            size="tiny"
+            style={{
+              marginLeft: 16,
+            }}
+          >
+            Login
+          </Button>
+        )}
+        {isLoggedIn && renderOverflowMenu()}
       </View>
     );
   };

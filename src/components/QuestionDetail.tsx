@@ -1,7 +1,7 @@
 import React, { memo } from "react";
-import { useWindowDimensions, StyleSheet, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 import RenderHTML from "react-native-render-html";
-import { Layout, styled, useTheme, Text } from "@ui-kitten/components";
+import { useTheme, Text } from "@ui-kitten/components";
 import { Question } from "../data-contracts";
 
 interface QuestionDetailProps {
@@ -10,18 +10,31 @@ interface QuestionDetailProps {
 
 const QuestionDetail = ({ selected }: QuestionDetailProps) => {
   const theme = useTheme();
-  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const { width: screenWidth } = useWindowDimensions();
+  const content = selected?.content?.join("");
 
   if (selected) {
     return (
       <RenderHTML
         contentWidth={screenWidth / 2}
         source={{
-          html: `${selected?.content}`,
+          html: content,
+        }}
+        baseStyle={{
+          fontSize: 18,
+          letterSpacing: 1,
+          lineHeight: 24,
         }}
         tagsStyles={{
           body: {
             color: theme["text-basic-color"],
+          },
+          img: {
+            maxWidth: "100",
+          },
+          pre: {
+            backgroundColor: theme["color-basic-transparent-200"],
+            padding: 16,
           },
         }}
       />

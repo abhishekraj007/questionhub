@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
-import { Button, Card, Icon, Modal, Text } from "@ui-kitten/components";
+import {
+  Button,
+  Card,
+  Icon,
+  Modal,
+  Spinner,
+  Text,
+} from "@ui-kitten/components";
 import { doc, getDoc } from "firebase/firestore/lite";
 import { db } from "../firebase-config";
 import {
@@ -30,11 +37,12 @@ const LoginModal = ({
   } = authStore;
   const { setUserFavs } = questionStore;
   const { selectedMenu } = menuStore;
-
   const { width } = useWindowDimensions();
+  const [isMakingCall, setIsMakingCall] = useState(false);
 
   const onLogin = async () => {
     try {
+      setIsMakingCall(true);
       // Authenticate using Google
       const res = await apiLogInWithGoogle();
       const newUser = {
@@ -60,9 +68,16 @@ const LoginModal = ({
     } catch (error) {
       console.log(error);
     } finally {
+      setIsMakingCall(false);
       setShowLoginModal(false);
     }
   };
+
+  const LoadingIndicator = (props) => (
+    <View>
+      <Spinner size="small" />
+    </View>
+  );
 
   const GoogleIcon = (props) => <Icon {...props} name="google" />;
   const CloseIcon = (props) => <Icon {...props} name="close" />;
@@ -122,7 +137,12 @@ const LoginModal = ({
             paddingBottom: 32,
           }}
         >
-          <Button size="giant" accessoryLeft={GoogleIcon} onPress={onLogin}>
+          <Button
+            disabled={isMakingCall}
+            size="giant"
+            accessoryLeft={isMakingCall ? LoadingIndicator : GoogleIcon}
+            onPress={onLogin}
+          >
             Login with Google
           </Button>
         </View>
