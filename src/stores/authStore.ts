@@ -47,6 +47,7 @@ export class AuthStore implements IAuthStore {
   logout = () => {
     this.setIsLoggedIn(false);
     this.clearUser();
+    window.location.reload();
   };
 
   setShowLoginModal = (value: boolean) => {

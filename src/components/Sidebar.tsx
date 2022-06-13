@@ -17,7 +17,7 @@ interface Props {
 
 export const Sidebar = observer(
   ({ store: { menuStore, questionStore } }: Props) => {
-    const { javascript, react, allFavorites } = questionStore;
+    const { javascript, react } = questionStore;
     const theme = useTheme();
 
     const StarIcon = (props) => (
@@ -37,7 +37,7 @@ export const Sidebar = observer(
         }}
       >
         <Text category="label" appearance="hint" status="primary">
-          {data.length}
+          {data?.length}
         </Text>
       </View>
     );
@@ -59,7 +59,7 @@ export const Sidebar = observer(
           questionStore.clearFilter(getCategory(index));
         }}
       >
-        {javascript?.fav.length ? (
+        {javascript?.fav?.length ? (
           <MenuGroup title="Javascript">
             <MenuItem title="All" accessoryLeft={BookOpen} />
             <MenuItem
@@ -72,7 +72,7 @@ export const Sidebar = observer(
           <MenuItem title="Javascript" />
         )}
 
-        {react?.fav.length ? (
+        {react?.fav?.length ? (
           <MenuGroup title="React">
             <MenuItem title="All" accessoryLeft={BookOpen} />
             <MenuItem

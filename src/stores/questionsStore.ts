@@ -40,8 +40,8 @@ export interface IQuestionStore {
     js: IQModel;
     react: IQModel;
   };
-  userFavs: Favorites[];
-  setUserFavs: (data: Favorites[], category: SidebarItem) => void;
+  userFavs: Question[];
+  setUserFavs: (data: Question[], category: SidebarItem) => void;
   questionsMap: any;
 }
 
@@ -60,25 +60,22 @@ export class QuestionStore implements IQuestionStore {
     data: [],
     fav: [],
   };
-  userFavs: Favorites[] = [];
+  userFavs: Question[] = [];
 
   // This is when user loads the page
-  setUserFavs = (favList: Favorites[], category?: SidebarItem) => {
+  setUserFavs = (favList: Question[], category?: SidebarItem) => {
     // Add user bookmarked list
     this.userFavs = favList;
     const { getMenuKey, setMenuKey } = getCategoryKey(category);
 
     // Filter bookmarked items by category
-
     const favs = (favList ?? [])
       .map((item) => {
-        console.log(category, item.type);
         if (item.type === category) {
-          return { ...this.questionsMap[item.id], bookmarked: true };
+          return { ...item, bookmarked: true };
         }
       })
       .filter((item) => item);
-    console.log(favs);
 
     const currentListIncludingFav = this.includeFavorites(
       this[getMenuKey].data,
@@ -90,6 +87,30 @@ export class QuestionStore implements IQuestionStore {
       data: currentListIncludingFav,
     });
     this.setFilteredList(currentListIncludingFav);
+    this.setFavsForAllCategories(favList, category);
+
+    // Set Favs for all categories
+  };
+
+  setFavsForAllCategories = (favList, excludeCurrentCategory) => {
+    const categories = [SidebarItem.JAVASCRIPT, SidebarItem.REACT].filter(
+      (item) => item !== excludeCurrentCategory
+    );
+
+    categories.forEach((category) => {
+      const { getMenuKey, setMenuKey } = getCategoryKey(category);
+
+      this[setMenuKey]({
+        data: this[getMenuKey].data,
+        fav: favList
+          ?.map((item) => {
+            if (item.type === category) {
+              return item;
+            }
+          })
+          .filter((item) => item),
+      });
+    });
   };
 
   constructor() {
@@ -148,7 +169,7 @@ export class QuestionStore implements IQuestionStore {
             this.questionsMap[item?.id] = item;
           });
 
-          if (this.userFavs) {
+          if (this.userFavs?.length) {
             this.setUserFavs(this.userFavs, category);
           } else {
             this.setFilteredList(data);
@@ -285,17 +306,13 @@ export class QuestionStore implements IQuestionStore {
       default:
         this.setFilteredList(newFavList);
     }
-    this.setAllFavorites([...this.javascript.fav, ...this.react.fav]);
-    console.log("userId", userId);
+    const allFavs = [...this.javascript.fav, ...this.react.fav];
+
+    this.setAllFavorites(allFavs);
 
     apiUpdateUser({
       id: userId,
-      favs: this.allFavorites.map((item) => {
-        return {
-          type: item.type,
-          id: item.id,
-        };
-      }),
+      favs: allFavs,
     });
 
     // localStorage.setItem(getMenuKey, JSON.stringify(newFavList));

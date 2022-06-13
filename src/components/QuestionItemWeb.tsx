@@ -45,6 +45,7 @@ const QuestionItemWeb = ({
         category="s1"
         style={{
           fontSize: 16,
+          paddingLeft: 8,
         }}
       >{`${index + 1}. ${item?.title}`}</Text>
     );

@@ -60,7 +60,8 @@ const LoginModal = ({
       // Check if this user exist
       if (userSnap.exists()) {
         // TODO: Can we use to reload page
-        setUserFavs(userSnap?.data()?.favs, getCategory(selectedMenu));
+        // setUserFavs(userSnap?.data()?.favs, getCategory(selectedMenu));
+        window.location.reload();
       } else {
         // Add this user to database
         await apiAddUser(newUser);

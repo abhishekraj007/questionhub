@@ -1,4 +1,9 @@
 const MetroConfig = require("@ui-kitten/metro-config");
+const { getDefaultConfig } = require("@expo/metro-config");
+
+const defaultConfig = getDefaultConfig(__dirname);
+
+defaultConfig.resolver.assetExts.push("cjs");
 
 const evaConfig = {
   evaPackage: "@eva-design/eva",
@@ -7,5 +12,5 @@ const evaConfig = {
 };
 
 module.exports = MetroConfig.create(evaConfig, {
-  // Whatever was previously specified
+  ...defaultConfig,
 });
