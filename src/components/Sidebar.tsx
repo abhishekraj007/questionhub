@@ -7,7 +7,7 @@ import {
   useTheme,
 } from "@ui-kitten/components";
 import { observer } from "mobx-react-lite";
-import { View } from "react-native";
+import { View, StyleSheet } from "react-native";
 import { getCategory } from "../data-contracts";
 import { IStore } from "../stores";
 
@@ -24,23 +24,34 @@ export const Sidebar = observer(
       <Icon {...props} style={{ width: 16, height: 16 }} name="star-outline" />
     );
 
-    const FavCount = (data) => (
-      <View
-        style={{
-          backgroundColor: theme["border-basic-color-4"],
-          width: 20,
-          height: 20,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          borderRadius: 20,
-        }}
-      >
-        <Text category="label" appearance="hint" status="primary">
-          {data?.length}
-        </Text>
-      </View>
-    );
+    const FavCount = (data) => {
+      if (data?.length) {
+        return (
+          <View>
+            <Text
+              style={{
+                backgroundColor: theme["color-primary-transparent-200"],
+                marginRight: 40,
+                width: 40,
+                height: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: 20,
+                fontSize: 10,
+              }}
+              category="label"
+              appearance="hint"
+              status="primary"
+            >
+              {data?.length}
+            </Text>
+          </View>
+        );
+      }
+
+      return null;
+    };
 
     const BookOpen = (props) => (
       <Icon
@@ -61,28 +72,60 @@ export const Sidebar = observer(
       >
         {javascript?.fav?.length ? (
           <MenuGroup title="Javascript">
-            <MenuItem title="All" accessoryLeft={BookOpen} />
+            <MenuItem
+              title="All"
+              accessoryLeft={BookOpen}
+              accessoryRight={FavCount(javascript.data)}
+              style={{
+                paddingRight: 40,
+              }}
+            />
             <MenuItem
               title="Favorites"
               accessoryLeft={StarIcon}
               accessoryRight={FavCount(javascript.fav)}
+              style={{
+                paddingRight: 40,
+              }}
             />
           </MenuGroup>
         ) : (
-          <MenuItem title="Javascript" />
+          <MenuItem
+            title="Javascript"
+            accessoryRight={FavCount(react.fav)}
+            style={{
+              paddingRight: 40,
+            }}
+          />
         )}
 
         {react?.fav?.length ? (
           <MenuGroup title="React">
-            <MenuItem title="All" accessoryLeft={BookOpen} />
+            <MenuItem
+              title="All"
+              accessoryLeft={BookOpen}
+              accessoryRight={FavCount(react.data)}
+              style={{
+                paddingRight: 40,
+              }}
+            />
             <MenuItem
               title="Favorites"
               accessoryLeft={StarIcon}
               accessoryRight={FavCount(react.fav)}
+              style={{
+                paddingRight: 40,
+              }}
             />
           </MenuGroup>
         ) : (
-          <MenuItem title="React" />
+          <MenuItem
+            title="React"
+            accessoryRight={FavCount(react.data)}
+            style={{
+              paddingRight: 40,
+            }}
+          />
         )}
 
         <MenuItem title="HTML"></MenuItem>
@@ -92,3 +135,9 @@ export const Sidebar = observer(
     );
   }
 );
+
+const styles = StyleSheet.create({
+  menuItem: {
+    paddingRight: 40,
+  },
+});

@@ -1,13 +1,6 @@
 import { makeAutoObservable } from "mobx";
 import { apiGetQuestions, URLS, apiUpdateUser, apiGetUserData } from "../apis";
-import {
-  Favorites,
-  getCategoryKey,
-  Question,
-  questionCategoriesList,
-  QuestionMap,
-  SidebarItem,
-} from "../data-contracts";
+import { getCategoryKey, Question, SidebarItem } from "../data-contracts";
 
 interface IQModel {
   data: Question[];
