@@ -5,24 +5,24 @@ import {
   Icon,
   Text,
   useTheme,
-} from "@ui-kitten/components";
-import { observer } from "mobx-react-lite";
-import { View, StyleSheet } from "react-native";
-import { getCategory } from "../data-contracts";
-import { IStore } from "../stores";
+} from "@ui-kitten/components"
+import { observer } from "mobx-react-lite"
+import { View } from "react-native"
+import { getCategory } from "../data-contracts"
+import { IStore } from "../stores"
 
 interface Props {
-  store: IStore;
+  store: IStore
 }
 
 export const Sidebar = observer(
   ({ store: { menuStore, questionStore } }: Props) => {
-    const { javascript, react } = questionStore;
-    const theme = useTheme();
+    const { javascript, react } = questionStore
+    const theme = useTheme()
 
     const StarIcon = (props) => (
       <Icon {...props} style={{ width: 16, height: 16 }} name="star-outline" />
-    );
+    )
 
     const FavCount = (data) => {
       if (data?.length) {
@@ -31,7 +31,6 @@ export const Sidebar = observer(
             <Text
               style={{
                 backgroundColor: theme["color-primary-transparent-200"],
-                marginRight: 40,
                 width: 40,
                 height: 20,
                 display: "flex",
@@ -47,11 +46,11 @@ export const Sidebar = observer(
               {data?.length}
             </Text>
           </View>
-        );
+        )
       }
 
-      return null;
-    };
+      return null
+    }
 
     const BookOpen = (props) => (
       <Icon
@@ -59,15 +58,15 @@ export const Sidebar = observer(
         style={{ width: 16, height: 16 }}
         name="book-open-outline"
       />
-    );
+    )
 
     return (
       <Menu
         selectedIndex={menuStore.selectedMenu}
         onSelect={(index) => {
-          console.log(index);
-          menuStore.setSelectedMenu(index);
-          questionStore.clearFilter(getCategory(index));
+          console.log(index)
+          menuStore.setSelectedMenu(index)
+          questionStore.clearFilter(getCategory(index))
         }}
       >
         {javascript?.fav?.length ? (
@@ -77,7 +76,7 @@ export const Sidebar = observer(
               accessoryLeft={BookOpen}
               accessoryRight={FavCount(javascript.data)}
               style={{
-                paddingRight: 40,
+                paddingRight: 24,
               }}
             />
             <MenuItem
@@ -85,7 +84,7 @@ export const Sidebar = observer(
               accessoryLeft={StarIcon}
               accessoryRight={FavCount(javascript.fav)}
               style={{
-                paddingRight: 40,
+                paddingRight: 24,
               }}
             />
           </MenuGroup>
@@ -94,7 +93,7 @@ export const Sidebar = observer(
             title="Javascript"
             accessoryRight={FavCount(react.fav)}
             style={{
-              paddingRight: 40,
+              paddingRight: 24,
             }}
           />
         )}
@@ -106,7 +105,7 @@ export const Sidebar = observer(
               accessoryLeft={BookOpen}
               accessoryRight={FavCount(react.data)}
               style={{
-                paddingRight: 40,
+                paddingRight: 24,
               }}
             />
             <MenuItem
@@ -114,7 +113,7 @@ export const Sidebar = observer(
               accessoryLeft={StarIcon}
               accessoryRight={FavCount(react.fav)}
               style={{
-                paddingRight: 40,
+                paddingRight: 24,
               }}
             />
           </MenuGroup>
@@ -123,7 +122,7 @@ export const Sidebar = observer(
             title="React"
             accessoryRight={FavCount(react.data)}
             style={{
-              paddingRight: 40,
+              paddingRight: 24,
             }}
           />
         )}
@@ -132,12 +131,6 @@ export const Sidebar = observer(
         <MenuItem title="CSS"></MenuItem>
         <MenuItem title="Accessibility"></MenuItem>
       </Menu>
-    );
+    )
   }
-);
-
-const styles = StyleSheet.create({
-  menuItem: {
-    paddingRight: 40,
-  },
-});
+)
