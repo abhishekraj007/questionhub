@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore/lite";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { initializeApp } from "firebase/app"
+import { getFirestore } from "firebase/firestore/lite"
+import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth"
 
 import {
   FIREBASE_API_KEY,
@@ -11,7 +11,9 @@ import {
   FIREBASE_MESSAGIN_SENDER_ID,
   FIREBASE_APP_ID,
   FIREBASE_MEASUREMENT_ID,
-} from "@env";
+} from "@env"
+
+// console.log(FIREBASE_API_KEY);
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -26,14 +28,14 @@ const firebaseConfig = {
   messagingSenderId: FIREBASE_MESSAGIN_SENDER_ID,
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
-};
+}
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const app = initializeApp(firebaseConfig)
+export const db = getFirestore(app)
 
-const auth = getAuth(app);
+const auth = getAuth(app)
 
-const googleAuthProvider = new GoogleAuthProvider();
+const googleAuthProvider = new GoogleAuthProvider()
 
-export const signInWithGoogle = () => signInWithPopup(auth, googleAuthProvider);
+export const signInWithGoogle = () => signInWithPopup(auth, googleAuthProvider)
