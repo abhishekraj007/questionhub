@@ -28,7 +28,6 @@ export const QuestionContainer = observer(({ store }: Props) => {
       setFilteredList,
       react,
       javascript,
-      setUserFavs,
     },
   } = store;
 
@@ -58,10 +57,11 @@ export const QuestionContainer = observer(({ store }: Props) => {
   useEffect(() => {
     // set list data based on menu selection
     const selectedCategory = getCategory(selectedMenu);
+    console.log("selectedCategory => ", selectedCategory);
     if (selectedCategory === SidebarItem.JAVASCRIPT) {
       setFilteredList(javascript.data);
     } else if (selectedCategory === SidebarItem.JAVASCRIPT_FAVORITE) {
-      setFilteredList(javascript.fav);
+      setFilteredList(javascript.favs);
     } else if (selectedCategory === SidebarItem.REACT) {
       if (react.data.length) {
         setFilteredList(react.data);
@@ -69,7 +69,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
         getQuestions(SidebarItem.REACT);
       }
     } else if (selectedCategory === SidebarItem.REACT_FAVORITE) {
-      setFilteredList(react.fav);
+      setFilteredList(react.favs);
     }
   }, [selectedMenu]);
 

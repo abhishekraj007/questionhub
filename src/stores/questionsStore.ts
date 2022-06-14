@@ -4,7 +4,7 @@ import { getCategoryKey, Question, SidebarItem } from "../data-contracts";
 
 interface IQModel {
   data: Question[];
-  fav: Question[];
+  favs: Question[];
 }
 
 export interface IQuestionStore {
@@ -34,7 +34,7 @@ export interface IQuestionStore {
     react: IQModel;
   };
   userFavs: Question[];
-  setUserFavs: (data: Question[], category: SidebarItem) => void;
+  setUserFavs: (data: Question[]) => void;
   questionsMap: any;
 }
 
@@ -42,21 +42,48 @@ export class QuestionStore implements IQuestionStore {
   isLoading: boolean = false;
   filteredList: Question[] = [];
   allFavorites: Question[] = [];
+  userFavs: Question[] = [];
   javascript: IQModel = {
     data: [],
-    fav: [],
+    favs: [],
+  };
+  react: IQModel = {
+    data: [],
+    favs: [],
   };
 
   questionsMap = {};
 
-  react: IQModel = {
-    data: [],
-    fav: [],
+  setJavascript = (data: IQModel) => {
+    this.javascript = data;
   };
-  userFavs: Question[] = [];
+
+  setReact = (data: IQModel) => {
+    this.react = data;
+  };
+
+  setFilteredList = (data: Question[]) => {
+    this.filteredList = data;
+  };
+
+  setAllFavorites = (data: Question[]) => {
+    this.allFavorites = data;
+  };
+
+  setIsLoading = (isLoading: boolean) => {
+    this.isLoading = isLoading;
+  };
+
+  setUserFavs = (data: Question[]) => {
+    this.userFavs = data;
+  };
 
   // This is when user loads the page
-  setUserFavs = (favList: Question[], category?: SidebarItem) => {
+  updateFavs = (
+    favList: Question[],
+    category?: SidebarItem,
+    showBookmarkedOnTop?: boolean
+  ) => {
     // Add user bookmarked list
     this.userFavs = favList;
     const { getMenuKey, setMenuKey } = getCategoryKey(category);
@@ -70,16 +97,20 @@ export class QuestionStore implements IQuestionStore {
       })
       .filter((item) => item);
 
-    const currentListIncludingFav = this.includeFavorites(
+    const dataWithFavsOnTop = this.includeFavorites(
       this[getMenuKey].data,
       favs
     );
 
+    const data = showBookmarkedOnTop
+      ? dataWithFavsOnTop
+      : this[getMenuKey].data;
+
     this[setMenuKey]({
-      fav: favs,
-      data: currentListIncludingFav,
+      favs,
+      data,
     });
-    this.setFilteredList(currentListIncludingFav);
+    this.setFilteredList(data);
     this.setFavsForAllCategories(favList, category);
 
     // Set Favs for all categories
@@ -95,7 +126,7 @@ export class QuestionStore implements IQuestionStore {
 
       this[setMenuKey]({
         data: this[getMenuKey].data,
-        fav: favList
+        favs: favList
           ?.map((item) => {
             if (item.type === category) {
               return item;
@@ -144,7 +175,7 @@ export class QuestionStore implements IQuestionStore {
 
           if (userId) {
             const userSnap = await apiGetUserData(userId);
-            this.setUserFavs(userSnap.data().favs, category);
+            this.updateFavs(userSnap.data().favs, category, true);
           } else {
             this.setFilteredList(data);
           }
@@ -163,7 +194,7 @@ export class QuestionStore implements IQuestionStore {
           });
 
           if (this.userFavs?.length) {
-            this.setUserFavs(this.userFavs, category);
+            this.updateFavs(this.userFavs, category, true);
           } else {
             this.setFilteredList(data);
           }
@@ -179,26 +210,6 @@ export class QuestionStore implements IQuestionStore {
     }
   };
 
-  setJavascript = (data: IQModel) => {
-    this.javascript = data;
-  };
-
-  setReact = (data: IQModel) => {
-    this.react = data;
-  };
-
-  setFilteredList = (data: Question[]) => {
-    this.filteredList = data;
-  };
-
-  setAllFavorites = (data: Question[]) => {
-    this.allFavorites = data;
-  };
-
-  setIsLoading = (isLoading: boolean) => {
-    this.isLoading = isLoading;
-  };
-
   searchQuestion = (text: string, category: SidebarItem) => {
     let filtered = [];
     const { getMenuKey } = getCategoryKey(category);
@@ -211,12 +222,12 @@ export class QuestionStore implements IQuestionStore {
         });
         break;
       case SidebarItem.ALL_FAVORITES:
-        filtered = this.allFavorites.filter((q) => {
+        filtered = this.userFavs.filter((q) => {
           return q.title.toLocaleLowerCase().includes(text.toLowerCase());
         });
         break;
       default:
-        filtered = this[getMenuKey].fav?.filter((q) => {
+        filtered = this[getMenuKey].favs?.filter((q) => {
           return q.title.toLocaleLowerCase().includes(text.toLocaleLowerCase());
         });
     }
@@ -233,10 +244,10 @@ export class QuestionStore implements IQuestionStore {
         this.setFilteredList(this[getMenuKey].data);
         break;
       case SidebarItem.ALL_FAVORITES:
-        this.setFilteredList(this.allFavorites);
+        this.setFilteredList(this.userFavs);
         break;
       default:
-        this.setFilteredList(this[getMenuKey].fav);
+        this.setFilteredList(this[getMenuKey].favs);
     }
   };
 
@@ -246,16 +257,18 @@ export class QuestionStore implements IQuestionStore {
     userId?: string
   ) => {
     // If item is present in fav list remove it
-    const { getMenuKey, setMenuKey } = getCategoryKey(category);
 
-    const foundedIndex = this[getMenuKey].fav.findIndex(
+    const { getMenuKey, setMenuKey } = getCategoryKey(item.type as SidebarItem);
+
+    const foundedIndex = this[getMenuKey].favs?.findIndex(
       (fav) => fav.id === item.id
     );
 
-    let foundedEle = this[getMenuKey].fav[foundedIndex];
+    let foundedEle = this[getMenuKey].favs[foundedIndex];
     let newList = [];
     let newFavList = [];
 
+    // debugger;
     if (foundedIndex >= 0) {
       // Remove from fav
 
@@ -269,11 +282,11 @@ export class QuestionStore implements IQuestionStore {
         return ele;
       });
 
-      newFavList = this[getMenuKey].fav.filter(
+      newFavList = this[getMenuKey].favs.filter(
         (item) => item.id !== foundedEle.id
       );
 
-      this[setMenuKey]({ data: newList, fav: newFavList });
+      this[setMenuKey]({ data: newList, favs: newFavList });
     } else {
       // Add to fav
       newList = this[getMenuKey].data.map((question) => {
@@ -286,28 +299,29 @@ export class QuestionStore implements IQuestionStore {
         return question;
       });
 
-      newFavList = [{ ...item, bookmarked: true }, ...this[getMenuKey].fav];
+      newFavList = [{ ...item, bookmarked: true }, ...this[getMenuKey].favs];
 
-      this[setMenuKey]({ data: newList, fav: newFavList });
+      this[setMenuKey]({ data: newList, favs: newFavList });
     }
+
+    const allFavs = [...this.javascript.favs, ...this.react.favs];
+    this.setUserFavs(allFavs);
 
     switch (category) {
       case SidebarItem.JAVASCRIPT:
       case SidebarItem.REACT:
         this.setFilteredList(newList);
         break;
+      case SidebarItem.ALL_FAVORITES:
+        this.setFilteredList(allFavs);
+        break;
       default:
         this.setFilteredList(newFavList);
     }
-    const allFavs = [...this.javascript.fav, ...this.react.fav];
-
-    this.setAllFavorites(allFavs);
 
     apiUpdateUser({
       id: userId,
       favs: allFavs,
     });
-
-    // localStorage.setItem(getMenuKey, JSON.stringify(newFavList));
   };
 }

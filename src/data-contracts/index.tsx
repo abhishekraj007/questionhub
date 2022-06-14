@@ -59,16 +59,10 @@ export const getCategoryKey = (category: SidebarItem) => {
   let getMenuKey = "javascript";
   let setMenuKey = "setJavascript";
 
-  if (category === SidebarItem.JAVASCRIPT_FAVORITE) {
-    getMenuKey = "javascript";
-    setMenuKey = "setJavascript";
-  }
-
-  if (category === SidebarItem.REACT) {
-    getMenuKey = "react";
-    setMenuKey = "setReact";
-  }
-  if (category === SidebarItem.REACT_FAVORITE) {
+  if (
+    category === SidebarItem.REACT ||
+    category === SidebarItem.REACT_FAVORITE
+  ) {
     getMenuKey = "react";
     setMenuKey = "setReact";
   }
