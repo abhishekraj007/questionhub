@@ -77,7 +77,7 @@ export const QuestionContainer = observer(() => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
       searchQuestion(value, getCategory(selectedMenu));
-    }, 300);
+    }, 500);
   };
 
   const renderList = () => {
