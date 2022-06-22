@@ -1,40 +1,15 @@
-import React, { useState } from "react";
-import { StyleSheet, useWindowDimensions, View } from "react-native";
-import {
-  Button,
-  Card,
-  Icon,
-  Modal,
-  Spinner,
-  Text,
-} from "@ui-kitten/components";
-import { doc, getDoc } from "firebase/firestore/lite";
-import { db } from "../firebase-config";
-import {
-  apiAddUser,
-  apiGetUserData,
-  apiLogInWithGoogle,
-  apiUpdateUser,
-} from "../apis";
-import { IStore } from "../stores";
+import React, { useContext, useState } from "react";
+import { useWindowDimensions, View } from "react-native";
+import { Button, Card, Icon, Spinner, Text } from "@ui-kitten/components";
+import { apiAddUser, apiGetUserData, apiLogInWithGoogle } from "../apis";
 import { observer } from "mobx-react-lite";
-import { getCategory } from "../data-contracts";
+import { StoreContext } from "../../App";
 
-interface Props {
-  store: IStore;
-}
+const LoginModal = () => {
+  const { authStore, menuStore, questionStore } = useContext(StoreContext);
 
-const LoginModal = ({
-  store: { menuStore, authStore, questionStore },
-}: Props) => {
-  const {
-    user,
-    setUser,
-    isLoggedIn,
-    setIsLoggedIn,
-    showLoginModal,
-    setShowLoginModal,
-  } = authStore;
+  const { setUser, setIsLoggedIn, showLoginModal, setShowLoginModal } =
+    authStore;
   const { setUserFavs } = questionStore;
   const { selectedMenu } = menuStore;
   const { width } = useWindowDimensions();
@@ -74,7 +49,7 @@ const LoginModal = ({
     }
   };
 
-  const LoadingIndicator = (props) => (
+  const LoadingIndicator = () => (
     <View>
       <Spinner size="small" />
     </View>

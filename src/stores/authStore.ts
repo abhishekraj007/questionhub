@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IndexPath } from "@ui-kitten/components";
 import { makeAutoObservable } from "mobx";
 import { User } from "../data-contracts";
@@ -11,6 +12,7 @@ export interface IAuthStore {
   clearUser: () => void;
   showLoginModal: boolean;
   setShowLoginModal: (value: boolean) => void;
+  checkUserLoggedInStatus: () => void;
 }
 
 export class AuthStore implements IAuthStore {
@@ -20,24 +22,36 @@ export class AuthStore implements IAuthStore {
 
   constructor() {
     makeAutoObservable(this);
-
-    // If user is already logged in
-    // For now use localstorage later can be change with cookies
-    const user = localStorage.getItem("user");
-    if (user) {
-      this.setUser(JSON.parse(user));
-      this.setIsLoggedIn(true);
-    }
   }
 
-  setUser = (user: User) => {
-    this.user = user;
-    localStorage.setItem("user", JSON.stringify(user));
+  checkUserLoggedInStatus = async () => {
+    try {
+      const user = await AsyncStorage.getItem("user");
+      if (user) {
+        this.setUser(JSON.parse(user));
+        this.setIsLoggedIn(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  clearUser = () => {
+  setUser = async (user: User) => {
+    this.user = user;
+    try {
+      await AsyncStorage.setItem("user", JSON.stringify(user));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  clearUser = async () => {
     this.user = undefined;
-    localStorage.removeItem("user");
+    try {
+      await AsyncStorage.removeItem("user");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   setIsLoggedIn = (login: boolean) => {

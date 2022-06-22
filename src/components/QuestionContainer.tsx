@@ -1,21 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Platform, useWindowDimensions } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, useWindowDimensions } from "react-native";
 import Loader from "./Loader";
 import { Input } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
 import { getCategory, Question, SidebarItem } from "../data-contracts";
 import { observer } from "mobx-react-lite";
-import { IStore } from "../stores";
 import QuestionList from "./QuestionList";
-import { apiGetUserData } from "../apis";
-
-interface Props {
-  store: IStore;
-}
+import { isItMobile } from "../utils";
+import { StoreContext } from "../../App";
 
 let searchTimer;
 
-export const QuestionContainer = observer(({ store }: Props) => {
+export const QuestionContainer = observer(() => {
+  const store = useContext(StoreContext);
+
   const {
     menuStore: { selectedMenu },
     authStore: { user, setShowLoginModal },
@@ -32,7 +30,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
   } = store;
 
   const [selectedQuestion, setSelectedQuestion] = useState<Question>();
-  const { height: screenHeight } = useWindowDimensions();
+  const { height: screenHeight, width } = useWindowDimensions();
 
   const [value, setValue] = useState("");
 
@@ -41,7 +39,7 @@ export const QuestionContainer = observer(({ store }: Props) => {
     (async () => {
       getQuestions(SidebarItem.JAVASCRIPT, user?.id);
     })();
-  }, []);
+  }, [user?.id]);
 
   const onFavToggle = (item: Question, category: SidebarItem) => {
     // Allow fav only if user is loggedIn
@@ -83,34 +81,34 @@ export const QuestionContainer = observer(({ store }: Props) => {
   };
 
   const renderList = () => {
-    if (Platform.OS === "web") {
-      return (
-        <>
-          {isLoading && <Loader />}
-          <View style={styles.panel}>
-            <View
-              style={[
-                styles.panelLeft,
-                {
-                  height: `${screenHeight - 90}px`,
-                },
-              ]}
-            >
-              <Input
-                placeholder="Search"
-                size="small"
-                value={value}
-                onChangeText={onSearch}
-              />
+    return (
+      <>
+        {isLoading && <Loader />}
+        <View style={styles.panel}>
+          <View
+            style={[
+              styles.panelLeft,
+              {
+                height: `${screenHeight - 90}px`,
+              },
+            ]}
+          >
+            <Input
+              placeholder="Search"
+              size="small"
+              value={value}
+              onChangeText={onSearch}
+            />
 
-              <QuestionList
-                listData={filteredList}
-                toggleFavorite={onFavToggle}
-                selectedQuestion={selectedQuestion}
-                setSelectedQuestion={setSelectedQuestion}
-                selectedMenu={selectedMenu}
-              />
-            </View>
+            <QuestionList
+              listData={filteredList}
+              toggleFavorite={onFavToggle}
+              selectedQuestion={selectedQuestion}
+              setSelectedQuestion={setSelectedQuestion}
+              selectedMenu={selectedMenu}
+            />
+          </View>
+          {!isItMobile && (
             <View
               style={[
                 styles.panelRight,
@@ -121,27 +119,8 @@ export const QuestionContainer = observer(({ store }: Props) => {
             >
               <QuestionDetail selected={selectedQuestion} />
             </View>
-          </View>
-        </>
-      );
-    }
-
-    // Work For mobile here
-    return (
-      <>
-        {isLoading && <Loader />}
-        <Input
-          placeholder="Search"
-          value={value}
-          onChangeText={(nextValue) => setValue(nextValue)}
-        />
-        <QuestionList
-          listData={filteredList}
-          toggleFavorite={toggleFavorite}
-          selectedQuestion={selectedQuestion}
-          setSelectedQuestion={setSelectedQuestion}
-          selectedMenu={selectedMenu}
-        />
+          )}
+        </View>
       </>
     );
   };
@@ -155,7 +134,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   panelLeft: {
-    width: `40%`,
+    width: `${isItMobile ? "100%" : "40%"}`,
     overflow: "scroll",
   },
   panelRight: {

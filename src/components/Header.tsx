@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Button,
   Icon,
@@ -12,23 +12,24 @@ import { AppTheme } from "../data-contracts";
 import { View } from "react-native";
 import { IStore } from "../stores";
 import { observer } from "mobx-react-lite";
+import { StoreContext } from "../../App";
+import { isItMobile } from "../utils";
+import { CloseIcon, Ellipsis, GoogleIcon, HamBurgerIcon } from "./Icons/Icons";
 
-interface Props {
-  theme: AppTheme;
-  setTheme: (theme: AppTheme) => void;
-  store: IStore;
-}
+function Header() {
+  const { menuStore, authStore } = useContext(StoreContext);
 
-function Header({
-  theme,
-  setTheme,
-  store: { authStore, questionStore },
-}: Props) {
+  const { setShowSidebar, showSidebar, theme, setTheme } = menuStore;
+
   const { user, isLoggedIn, setShowLoginModal } = authStore;
-  const [visible, setVisible] = useState(false);
+  const [showLoginMenu, setShowLoginMenu] = useState(false);
+
+  const iconColor = {
+    fill: theme === AppTheme.DARK ? "#ffffff" : "#222b45",
+  };
 
   const onItemSelect = () => {
-    setVisible(false);
+    setShowLoginMenu(false);
   };
 
   const onLogin = () => {
@@ -43,25 +44,20 @@ function Header({
     <Icon {...props} name={theme === AppTheme.LIGHT ? "moon" : "sun"} />
   );
 
-  const Ellipsis = (props) => <Icon {...props} name="more-vertical-outline" />;
-  const GoogleIcon = (props) => <Icon {...props} name="google" />;
-
-  const renderToggleButton = () => (
-    <Button
-      onPress={() => setVisible(true)}
-      appearance="ghost"
-      size="small"
-      accessoryLeft={Ellipsis}
+  const renderLoginMenu = () => (
+    <TopNavigationAction
+      onPress={() => setShowLoginMenu(true)}
+      icon={() => Ellipsis(iconColor)}
     />
   );
 
   const renderOverflowMenu = () => {
     return (
       <OverflowMenu
-        anchor={renderToggleButton}
-        visible={visible}
+        anchor={renderLoginMenu}
+        visible={showLoginMenu}
         onSelect={onItemSelect}
-        onBackdropPress={() => setVisible(false)}
+        onBackdropPress={() => setShowLoginMenu(false)}
       >
         {isLoggedIn && <MenuItem title={user?.displayName} disabled={true} />}
 
@@ -69,7 +65,7 @@ function Header({
           <MenuItem
             onPress={onLogout}
             title="Logout"
-            accessoryLeft={GoogleIcon}
+            accessoryLeft={() => GoogleIcon(iconColor)}
           />
         )}
 
@@ -77,11 +73,28 @@ function Header({
           <MenuItem
             onPress={onLogin}
             title="Login"
-            accessoryLeft={GoogleIcon}
+            accessoryLeft={() => GoogleIcon(iconColor)}
           />
         )}
       </OverflowMenu>
     );
+  };
+
+  const renderHamburger = () => {
+    if (isItMobile) {
+      return (
+        <TopNavigationAction
+          onPress={() => setShowSidebar(!showSidebar)}
+          icon={() =>
+            showSidebar ? CloseIcon(iconColor) : HamBurgerIcon(iconColor)
+          }
+          style={{
+            marginLeft: 16,
+          }}
+        />
+      );
+    }
+    return null;
   };
 
   const renderRightNav = () => {
@@ -106,7 +119,7 @@ function Header({
           <Button
             appearance="outline"
             status="primary"
-            accessoryLeft={GoogleIcon}
+            // status="success"
             onPress={onLogin}
             size="tiny"
             style={{
@@ -128,6 +141,7 @@ function Header({
         paddingRight: 16,
       }}
       title={"Interview Questions"}
+      accessoryLeft={renderHamburger}
       accessoryRight={renderRightNav}
     ></TopNavigation>
   );

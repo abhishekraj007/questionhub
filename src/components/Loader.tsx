@@ -1,6 +1,7 @@
 import { Spinner } from "@ui-kitten/components";
 import React from "react";
 import { StyleSheet, useWindowDimensions, View } from "react-native";
+import { isItMobile } from "../utils";
 
 export default function Loader() {
   const { height: screenHeight } = useWindowDimensions();
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    paddingRight: 200,
-    paddingBottom: 100,
+    paddingRight: `${isItMobile ? "0" : "200"}px`,
+    paddingBottom: `${isItMobile ? "0" : "100"}px`,
   },
 });

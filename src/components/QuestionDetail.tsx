@@ -29,6 +29,7 @@ const QuestionDetail = ({ selected }: QuestionDetailProps) => {
         tagsStyles={{
           body: {
             color: theme["text-basic-color"],
+            padding: 16,
           },
           img: {
             maxWidth: "100",

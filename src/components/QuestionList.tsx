@@ -1,8 +1,6 @@
 import { Divider, List } from "@ui-kitten/components";
 import React, { memo } from "react";
-import { Platform } from "react-native";
 import QuestionItem from "./QuestionItem";
-import QuestionItemWeb from "./QuestionItemWeb";
 
 function QuestionList({
   listData,
@@ -12,20 +10,17 @@ function QuestionList({
   selectedMenu,
 }) {
   const renderQuestion = ({ item, index }) => {
-    if (Platform.OS === "web") {
-      return (
-        <QuestionItemWeb
-          key={item?.id}
-          item={item}
-          index={index}
-          setSlected={setSelectedQuestion}
-          selectedItem={selectedQuestion}
-          toggleFavorite={toggleFavorite}
-          selectedMenu={selectedMenu}
-        />
-      );
-    }
-    return <QuestionItem key={item?.title} item={item} />;
+    return (
+      <QuestionItem
+        key={item?.id}
+        item={item}
+        index={index}
+        setSlected={setSelectedQuestion}
+        selectedItem={selectedQuestion}
+        toggleFavorite={toggleFavorite}
+        selectedMenu={selectedMenu}
+      />
+    );
   };
 
   return (

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { createContext, useContext } from "react";
 import * as eva from "@eva-design/eva";
 import {
   ApplicationProvider,
@@ -15,60 +15,22 @@ import { AppTheme } from "./src/data-contracts";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import Header from "./src/components/Header";
 import { useEffect } from "react";
-import { Store } from "./src/stores";
+import { IStore, Store } from "./src/stores";
 import LoginModal from "./src/components/LoginModal";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import Home from "./src/screens/Dashboard";
+import { AppNavigator } from "./src/components/navigation/AppNavigator";
+import Main from "./src/Main";
 
 const store = new Store();
 
+export const StoreContext = createContext<IStore>(undefined);
+
 export default () => {
-  const { width: screenWidth } = useWindowDimensions();
-  const userTheme = localStorage.getItem("theme");
-  const [theme, setTheme] = useState<AppTheme>(
-    (userTheme as AppTheme) ?? AppTheme.LIGHT
-  );
-
-  console.log(store);
-
-  useEffect(() => {
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
   return (
-    <>
+    <StoreContext.Provider value={store}>
       <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider
-        {...eva}
-        theme={theme === AppTheme.LIGHT ? eva.light : eva.dark}
-      >
-        <Header store={store} theme={theme} setTheme={setTheme} />
-        <Divider />
-        <Layout style={styles.container} level="3">
-          <View
-            style={{
-              width: "280px",
-            }}
-          >
-            <Sidebar store={store} />
-          </View>
-          <View
-            style={{
-              width: `${screenWidth - 280}px`,
-            }}
-          >
-            <QuestionContainer store={store} />
-          </View>
-        </Layout>
-        <LoginModal store={store} />
-      </ApplicationProvider>
-    </>
+      <Main />
+    </StoreContext.Provider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    overflow: "hidden",
-    display: "flex",
-    flexDirection: "row",
-  },
-});
