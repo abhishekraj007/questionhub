@@ -4,6 +4,7 @@ import RenderHTML from "react-native-render-html";
 import { useTheme, Text } from "@ui-kitten/components";
 import { Question } from "../data-contracts";
 import { Editor } from "./Editor";
+import { isItMobile } from "../utils";
 
 interface QuestionDetailProps {
   selected: Question | undefined;
@@ -22,7 +23,7 @@ const QuestionDetail = ({ selected }: QuestionDetailProps) => {
           html: content,
         }}
         baseStyle={{
-          fontSize: 18,
+          fontSize: isItMobile ? 14 : 18,
           letterSpacing: 1,
           lineHeight: 24,
         }}
