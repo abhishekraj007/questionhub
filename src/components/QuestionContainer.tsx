@@ -3,7 +3,11 @@ import { View, StyleSheet, useWindowDimensions } from "react-native";
 import Loader from "./Loader";
 import { Input } from "@ui-kitten/components";
 import QuestionDetail from "./QuestionDetail";
-import { getCategory, Question, SidebarItem } from "../data-contracts";
+import {
+  getCategory,
+  Question,
+  SidebarItem,
+} from "../data-contracts/contracts";
 import { observer } from "mobx-react-lite";
 import QuestionList from "./QuestionList";
 import { isItMobile } from "../utils";
@@ -55,7 +59,6 @@ export const QuestionContainer = observer(() => {
   useEffect(() => {
     // set list data based on menu selection
     const selectedCategory = getCategory(selectedMenu);
-    console.log("selectedCategory => ", selectedCategory);
     if (selectedCategory === SidebarItem.JAVASCRIPT) {
       setFilteredList(javascript.data);
     } else if (selectedCategory === SidebarItem.JAVASCRIPT_FAVORITE) {

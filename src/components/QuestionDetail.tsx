@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { useWindowDimensions, View } from "react-native";
 import RenderHTML from "react-native-render-html";
 import { useTheme, Text } from "@ui-kitten/components";
-import { Question } from "../data-contracts";
+import { Question } from "../data-contracts/contracts";
 import { Editor } from "./Editor";
 import { isItMobile } from "../utils";
 

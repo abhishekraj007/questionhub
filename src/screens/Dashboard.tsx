@@ -4,19 +4,16 @@ import { StyleSheet, useWindowDimensions, View } from "react-native";
 import { Sidebar } from "../components/Sidebar";
 import { QuestionContainer } from "../components/QuestionContainer";
 import Header from "../components/Header";
-import { IStore } from "../stores";
-import LoginModal from "../components/LoginModal";
+import LoginModal from "../components/modals/LoginModal";
+import CreateNoteModal from "../components/modals/CreateNoteModal";
 import { StoreContext } from "../../App";
 import { isItMobile } from "../utils";
 import { observer } from "mobx-react-lite";
 
-interface HomeProps {
-  store?: IStore;
-}
-
-function Home({}: HomeProps) {
-  const { menuStore, authStore } = useContext(StoreContext);
-  console.log(authStore);
+export const Dashboard = observer(() => {
+  const store = useContext(StoreContext);
+  console.log(store);
+  const { menuStore, authStore } = store;
 
   const { showSidebar } = menuStore;
 
@@ -76,9 +73,10 @@ function Home({}: HomeProps) {
         </View>
       </Layout>
       <LoginModal />
+      <CreateNoteModal />
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   container: {
@@ -88,5 +86,3 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
 });
-
-export default observer(Home);

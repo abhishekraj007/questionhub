@@ -2,7 +2,6 @@ import {
   Menu,
   MenuGroup,
   MenuItem,
-  Icon,
   Text,
   useTheme,
 } from "@ui-kitten/components";
@@ -10,21 +9,15 @@ import { observer } from "mobx-react-lite";
 import { useContext } from "react";
 import { View } from "react-native";
 import { StoreContext } from "../../App";
-import { getCategory } from "../data-contracts";
-import { IStore } from "../stores";
-import { isItMobile } from "../utils";
+import { getCategory } from "../data-contracts/contracts";
 import { BookOpen, StarIcon } from "./Icons/Icons";
-
-interface Props {
-  store: IStore;
-}
 
 export const Sidebar = observer(() => {
   const store = useContext(StoreContext);
   const { questionStore, menuStore } = store;
-  const { selectedMenu, setSelectedMenu, setShowSidebar } = menuStore;
+  const { selectedMenu, setSelectedMenu } = menuStore;
 
-  const { javascript, react, userFavs } = questionStore;
+  const { javascript, react, notes, userFavs } = questionStore;
   const theme = useTheme();
 
   return (
@@ -93,6 +86,35 @@ export const Sidebar = observer(() => {
         />
       )}
 
+      {notes?.favs?.length ? (
+        <MenuGroup title="My Notes">
+          <MenuItem
+            title="All"
+            accessoryLeft={BookOpen}
+            accessoryRight={FavCount(theme, notes.data)}
+            style={{
+              paddingRight: 24,
+            }}
+          />
+          <MenuItem
+            title="Favorites"
+            accessoryLeft={StarIcon}
+            accessoryRight={FavCount(theme, notes.favs)}
+            style={{
+              paddingRight: 24,
+            }}
+          />
+        </MenuGroup>
+      ) : (
+        <MenuItem
+          title="My Notes"
+          accessoryRight={FavCount(theme, notes.data)}
+          style={{
+            paddingRight: 24,
+          }}
+        />
+      )}
+
       <MenuItem
         title="All Favorites"
         accessoryRight={FavCount(theme, userFavs)}
@@ -100,8 +122,6 @@ export const Sidebar = observer(() => {
           paddingRight: 24,
         }}
       ></MenuItem>
-      {/* <MenuItem title="CSS"></MenuItem>
-        <MenuItem title="Accessibility"></MenuItem> */}
     </Menu>
   );
 });

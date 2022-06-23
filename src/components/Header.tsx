@@ -8,25 +8,28 @@ import {
   MenuItem,
   Text,
 } from "@ui-kitten/components";
-import { AppTheme } from "../data-contracts";
+import { AppTheme } from "../data-contracts/contracts";
 import { View } from "react-native";
-import { IStore } from "../stores";
 import { observer } from "mobx-react-lite";
 import { StoreContext } from "../../App";
 import { isItMobile } from "../utils";
-import { CloseIcon, Ellipsis, GoogleIcon, HamBurgerIcon } from "./Icons/Icons";
+import {
+  CloseIcon,
+  Ellipsis,
+  GoogleIcon,
+  HamBurgerIcon,
+  iconColor,
+  NoteIcon,
+} from "./Icons/Icons";
 
 function Header() {
-  const { menuStore, authStore } = useContext(StoreContext);
+  const { menuStore, authStore, notesStore } = useContext(StoreContext);
 
   const { setShowSidebar, showSidebar, theme, setTheme } = menuStore;
-
   const { user, isLoggedIn, setShowLoginModal } = authStore;
-  const [showLoginMenu, setShowLoginMenu] = useState(false);
+  const { setShowNoteModal } = notesStore;
 
-  const iconColor = {
-    fill: theme === AppTheme.DARK ? "#ffffff" : "#222b45",
-  };
+  const [showLoginMenu, setShowLoginMenu] = useState(false);
 
   const onItemSelect = () => {
     setShowLoginMenu(false);
@@ -47,7 +50,7 @@ function Header() {
   const renderLoginMenu = () => (
     <TopNavigationAction
       onPress={() => setShowLoginMenu(true)}
-      icon={() => Ellipsis(iconColor)}
+      icon={() => Ellipsis(iconColor(theme))}
     />
   );
 
@@ -65,7 +68,7 @@ function Header() {
           <MenuItem
             onPress={onLogout}
             title="Logout"
-            accessoryLeft={() => GoogleIcon(iconColor)}
+            accessoryLeft={() => GoogleIcon(iconColor(theme))}
           />
         )}
 
@@ -73,7 +76,7 @@ function Header() {
           <MenuItem
             onPress={onLogin}
             title="Login"
-            accessoryLeft={() => GoogleIcon(iconColor)}
+            accessoryLeft={() => GoogleIcon(iconColor(theme))}
           />
         )}
       </OverflowMenu>
@@ -86,7 +89,12 @@ function Header() {
         <TopNavigationAction
           onPress={() => setShowSidebar(!showSidebar)}
           icon={() =>
-            showSidebar ? CloseIcon(iconColor) : HamBurgerIcon(iconColor)
+            showSidebar
+              ? CloseIcon({
+                  ...iconColor(theme),
+                  style: { width: 28, height: 28 },
+                })
+              : HamBurgerIcon(iconColor(theme))
           }
           style={{
             marginLeft: 16,
@@ -106,6 +114,29 @@ function Header() {
           alignItems: "center",
         }}
       >
+        {isLoggedIn && !isItMobile && (
+          <Button
+            appearance="outline"
+            status="primary"
+            onPress={() => setShowNoteModal(true)}
+            size="small"
+            style={{
+              marginLeft: 16,
+            }}
+            accessoryLeft={NoteIcon}
+          >
+            Create Note
+          </Button>
+        )}
+        {isLoggedIn && isItMobile && (
+          <TopNavigationAction
+            onPress={() => setShowNoteModal(true)}
+            icon={NoteIcon}
+            style={{
+              marginLeft: 16,
+            }}
+          />
+        )}
         <TopNavigationAction
           onPress={() => {
             setTheme(theme === AppTheme.LIGHT ? AppTheme.DARK : AppTheme.LIGHT);

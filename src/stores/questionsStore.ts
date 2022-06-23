@@ -1,6 +1,10 @@
 import { makeAutoObservable } from "mobx";
 import { apiGetQuestions, URLS, apiUpdateUser, apiGetUserData } from "../apis";
-import { getCategoryKey, Question, SidebarItem } from "../data-contracts";
+import {
+  getCategoryKey,
+  Question,
+  SidebarItem,
+} from "../data-contracts/contracts";
 
 interface IQModel {
   data: Question[];
@@ -11,12 +15,11 @@ export interface IQuestionStore {
   isLoading: boolean;
   setIsLoading: (value: boolean) => void;
   javascript: IQModel;
-  // javascript: Question[];
   setJavascript: (questions: IQModel) => void;
-  // javascriptFavorites: Question[];
-  // setJavascriptFavorites: (questions: Question[]) => void;
   react: IQModel;
   setReact: (data: IQModel) => void;
+  notes: IQModel;
+  setNotes: (data: IQModel) => void;
   filteredList: Question[];
   setFilteredList: (questions: Question[]) => void;
   allFavorites: Question[];
@@ -51,6 +54,10 @@ export class QuestionStore implements IQuestionStore {
     data: [],
     favs: [],
   };
+  notes: IQModel = {
+    data: [],
+    favs: [],
+  };
 
   questionsMap = {};
 
@@ -60,6 +67,10 @@ export class QuestionStore implements IQuestionStore {
 
   setReact = (data: IQModel) => {
     this.react = data;
+  };
+
+  setNotes = (data: IQModel) => {
+    this.notes = data;
   };
 
   setFilteredList = (data: Question[]) => {
@@ -117,9 +128,11 @@ export class QuestionStore implements IQuestionStore {
   };
 
   setFavsForAllCategories = (favList, excludeCurrentCategory) => {
-    const categories = [SidebarItem.JAVASCRIPT, SidebarItem.REACT].filter(
-      (item) => item !== excludeCurrentCategory
-    );
+    const categories = [
+      SidebarItem.JAVASCRIPT,
+      SidebarItem.REACT,
+      SidebarItem.NOTES,
+    ].filter((item) => item !== excludeCurrentCategory);
 
     categories.forEach((category) => {
       const { getMenuKey, setMenuKey } = getCategoryKey(category);
@@ -175,6 +188,9 @@ export class QuestionStore implements IQuestionStore {
 
           if (userId) {
             const userSnap = await apiGetUserData(userId);
+            console.log(userSnap.data());
+            // Notes is only for logged in users
+            this.setNotes({ ...this.notes, data: userSnap.data().notes });
             this.updateFavs(userSnap.data().favs, category, true);
           } else {
             this.setFilteredList(data);
@@ -217,6 +233,7 @@ export class QuestionStore implements IQuestionStore {
     switch (category) {
       case SidebarItem.JAVASCRIPT:
       case SidebarItem.REACT:
+      case SidebarItem.NOTES:
         filtered = this[getMenuKey].data.filter((q) => {
           return q.title.toLocaleLowerCase().includes(text.toLowerCase());
         });
@@ -241,6 +258,7 @@ export class QuestionStore implements IQuestionStore {
     switch (category) {
       case SidebarItem.JAVASCRIPT:
       case SidebarItem.REACT:
+      case SidebarItem.NOTES:
         this.setFilteredList(this[getMenuKey].data);
         break;
       case SidebarItem.ALL_FAVORITES:
@@ -310,6 +328,7 @@ export class QuestionStore implements IQuestionStore {
     switch (category) {
       case SidebarItem.JAVASCRIPT:
       case SidebarItem.REACT:
+      case SidebarItem.NOTES:
         this.setFilteredList(newList);
         break;
       case SidebarItem.ALL_FAVORITES:
@@ -319,8 +338,7 @@ export class QuestionStore implements IQuestionStore {
         this.setFilteredList(newFavList);
     }
 
-    apiUpdateUser({
-      id: userId,
+    apiUpdateUser(userId, {
       favs: allFavs,
     });
   };

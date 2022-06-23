@@ -1,8 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IndexPath } from "@ui-kitten/components";
 import { makeAutoObservable } from "mobx";
-import { Platform } from "react-native";
-import { AppTheme } from "../data-contracts";
+import { AppTheme } from "../data-contracts/contracts";
 
 export interface IMenuStore {
   selectedMenu: IndexPath;

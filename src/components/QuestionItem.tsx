@@ -1,5 +1,9 @@
 import React, { memo, useEffect, useState } from "react";
-import { getCategory, Question, SidebarItem } from "../data-contracts";
+import {
+  getCategory,
+  Question,
+  SidebarItem,
+} from "../data-contracts/contracts";
 import { Button, Icon, IndexPath, ListItem, Text } from "@ui-kitten/components";
 import { View } from "react-native";
 import QuestionDetail from "./QuestionDetail";

@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { IndexPath } from "@ui-kitten/components";
 import { makeAutoObservable } from "mobx";
-import { User } from "../data-contracts";
+import { User } from "../data-contracts/contracts";
 
 export interface IAuthStore {
   isLoggedIn: boolean;

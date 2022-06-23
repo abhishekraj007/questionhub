@@ -7,7 +7,7 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore/lite";
-import { User } from "../data-contracts";
+import { User } from "../data-contracts/contracts";
 import { db, signInWithGoogle } from "../firebase-config";
 
 export const URLS = {
@@ -72,8 +72,8 @@ export const apiAddUser = async (payload: User) => {
 };
 
 // Update User
-export const apiUpdateUser = async (payload: any) => {
-  const userRef = doc(db, "users", payload.id);
+export const apiUpdateUser = async (userId: string, payload: any) => {
+  const userRef = doc(db, "users", userId);
 
   try {
     const response = await updateDoc(userRef, payload);
